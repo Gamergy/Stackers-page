@@ -42,6 +42,8 @@
       width: 100vw; height: 100vh;
       background: #000;
       overflow: hidden;
+      opacity: 0;
+      transition: opacity 1.2s cubic-bezier(0.25, 0, 0, 1);
     }
 
     /* SVG particle layer — behind everything */
@@ -278,7 +280,7 @@
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* ── BOOT ────────────────────── */
-    #boot-screen { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.8s ease; }
+    #boot-screen { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.5s ease; }
     #boot-video { width: min(160px, 22vmin); height: auto; pointer-events: none; display: block; }
 
     /* ── MOBILE ──────────────────── */
@@ -771,16 +773,24 @@
    BOOT
 ================================================================ */
 window.addEventListener('load', () => {
-  const boot = document.getElementById('boot-screen');
-  const vid  = document.getElementById('boot-video');
+  const boot    = document.getElementById('boot-screen');
+  const vid     = document.getElementById('boot-video');
+  const desktop = document.getElementById('desktop');
+  let dismissed = false;
+
+  // Play at 1.8× speed
+  vid.playbackRate = 1.8;
+
   function dismiss() {
+    if (dismissed) return;
+    dismissed = true;
     boot.style.opacity = '0';
-    setTimeout(() => boot.remove(), 820);
+    desktop.style.opacity = '1';
+    setTimeout(() => boot.remove(), 550);
   }
+
   vid.addEventListener('ended', dismiss);
-  // Fallback: if video can't play (format/network issue), dismiss after 5s
   vid.addEventListener('error', () => setTimeout(dismiss, 500));
-  // Hard cap so the screen never gets stuck
   setTimeout(dismiss, 15000);
 });
 
