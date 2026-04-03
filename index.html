@@ -279,12 +279,7 @@
 
     /* ── BOOT ────────────────────── */
     #boot-screen { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.8s ease; }
-    .boot-logo { text-align: center; }
-    .boot-logo span { font-size: 64px; }
-    .boot-logo p { color: rgba(255,255,255,0.55); font-size: 14px; margin-top: 16px; letter-spacing: 0.06em; font-weight: 300; }
-    .boot-bar-track { width: 160px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin: 20px auto 0; overflow: hidden; }
-    .boot-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #5e9bff, #bf5fff); border-radius: 2px; animation: bootFill 1.6s ease forwards; }
-    @keyframes bootFill { to { width: 100%; } }
+    #boot-video { width: min(600px, 85vmin); height: auto; pointer-events: none; display: block; }
 
     /* ── MOBILE ──────────────────── */
     @media (max-width: 768px) {
@@ -328,11 +323,7 @@
 
 <!-- Boot Screen -->
 <div id="boot-screen">
-  <div class="boot-logo">
-    <span>🖥️</span>
-    <p>Loading Stacker's Desktop…</p>
-    <div class="boot-bar-track"><div class="boot-bar-fill"></div></div>
-  </div>
+  <video id="boot-video" src="./AI_Orb.mp4" autoplay muted playsinline></video>
 </div>
 
 <!-- Desktop -->
@@ -780,11 +771,17 @@
    BOOT
 ================================================================ */
 window.addEventListener('load', () => {
-  setTimeout(() => {
-    const boot = document.getElementById('boot-screen');
+  const boot = document.getElementById('boot-screen');
+  const vid  = document.getElementById('boot-video');
+  function dismiss() {
     boot.style.opacity = '0';
     setTimeout(() => boot.remove(), 820);
-  }, 1900);
+  }
+  vid.addEventListener('ended', dismiss);
+  // Fallback: if video can't play (format/network issue), dismiss after 5s
+  vid.addEventListener('error', () => setTimeout(dismiss, 500));
+  // Hard cap so the screen never gets stuck
+  setTimeout(dismiss, 15000);
 });
 
 /* ================================================================
