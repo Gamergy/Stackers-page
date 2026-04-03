@@ -312,6 +312,11 @@
     .card-bio-header { display: flex; justify-content: flex-end; margin: 14px 0 8px; }
     .card-bio-text { font-size: 12px; line-height: 1.75; color: var(--text-secondary); transition: opacity 0.2s; }
 
+    /* ── STACKERSPROG WINDOW ─────── */
+    .stackersprog-logo-design { width: 100%; max-width: 420px; display: block; margin: 0 auto 20px; border-radius: 12px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
+    .stackersprog-heading { font-size: 20px; font-weight: 700; color: var(--text-primary); text-align: center; margin-bottom: 10px; }
+    .stackersprog-desc { font-size: 13px; line-height: 1.75; color: var(--text-secondary); text-align: center; max-width: 460px; margin: 0 auto 26px; }
+
     /* ── SAMEROUTE WINDOW ────────── */
     .sameroute-logo { width: 76px; height: 76px; border-radius: 18px; overflow: hidden; background: #deddde; box-shadow: 0 6px 20px rgba(0,0,0,0.38), 0 1px 5px rgba(0,0,0,0.2); margin: 0 auto 18px; display: block; pointer-events: none; }
     .sameroute-logo svg { display: block; width: 100%; height: 100%; }
@@ -416,6 +421,13 @@
   <div class="desktop-icon" style="top:110px;left:36px;" onclick="openWindow('sameroute')">
     <svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg" aria-label="SameRoute">
       <image href="./SameRoute_logo.png" x="0" y="0" width="54" height="54" preserveAspectRatio="xMidYMid meet"/>
+    </svg>
+  </div>
+
+  <!-- Desktop Icon: StackersProg -->
+  <div class="desktop-icon" style="top:182px;left:36px;background:#ffffff;" onclick="openWindow('stackersprog')">
+    <svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg" aria-label="StackersProg">
+      <image href="./StackersProg_logo.png" x="-4" y="-4" width="62" height="62" preserveAspectRatio="xMidYMid slice"/>
     </svg>
   </div>
 
@@ -665,6 +677,24 @@
   </div>
 
   <div id="toast">✅ Message sent! I'll get back to you soon.</div>
+
+  <!-- Window: StackersProg -->
+  <div class="mac-window" id="win-stackersprog">
+    <div class="window-titlebar">
+      <div class="titlebar-buttons">
+        <button class="tb-btn tb-close"    onclick="closeWindow('stackersprog')"></button>
+        <button class="tb-btn tb-minimize"></button>
+        <button class="tb-btn tb-expand"></button>
+      </div>
+      <div class="window-title">StackersProg</div>
+    </div>
+    <div class="window-body">
+      <img class="stackersprog-logo-design" src="./StackersProg_logo_design.png" alt="StackersProg" />
+      <div class="stackersprog-heading">StackersProg — Construction Software</div>
+      <div class="stackersprog-desc">A formwork slab optimization program built for construction professionals. Helps builders plan and calculate concrete slab frameworks efficiently.</div>
+      <a href="#" class="btn-visit">Visit Website</a>
+    </div>
+  </div>
 
   <!-- Window: SameRoute -->
   <div class="mac-window" id="win-sameroute">
