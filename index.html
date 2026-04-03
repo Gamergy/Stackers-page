@@ -7,7 +7,7 @@
   <meta name="description" content="Gabriels Bralis (Stacker) — Personal Portfolio. A macOS-inspired desktop experience." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@100;200;300&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -87,14 +87,15 @@
     }
     
     #desktop-time {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: min(220px, 18vw); /* Huge, responsive size */
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 200;
+      font-size: min(150px, 14vw); /* Slightly smaller, more elegant */
       line-height: 0.8;
       color: rgba(255, 255, 255, 0.85);
       letter-spacing: 0.02em;
       text-shadow: 0 4px 40px rgba(0,0,0,0.5);
-      /* This gives it the "ultra-condensed / tall" look common in aesthetic screensavers */
-      transform: scaleY(1.4); 
+      /* Extreme vertical stretch for ultra thin/tall aesthetic */
+      transform: scaleY(1.8); 
       transform-origin: bottom right;
     }
     
@@ -692,7 +693,7 @@ function updateClock() {
   // 2. Large desktop background clock
   const desktopTime = document.getElementById('desktop-time');
   const desktopDate = document.getElementById('desktop-date');
-  if (desktopTime) desktopTime.textContent = `${h12}:${m}`;  
+  if (desktopTime) desktopTime.textContent = `${h.toString().padStart(2,'0')}:${m}`;  
   if (desktopDate) desktopDate.textContent = `${fullDays[now.getDay()]}, ${fullMons[now.getMonth()]} ${now.getDate()}`;
 }
 updateClock();
