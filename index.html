@@ -9,6 +9,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@200;300;400;800&display=swap" rel="stylesheet" />
   <style>
+    @font-face {
+      font-family: 'SF Pro Rails Native';
+      src: url('./SF Pro - Semibold Rails.otf') format('opentype');
+      font-weight: 600;
+      font-style: normal;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -87,15 +94,15 @@
     }
     
     #desktop-time {
-      font-family: "SF Pro Semibold Rails", "SF Pro Rails", ui-rounded, ".SF Pro Rounded", "SF Pro Rounded", "Nunito", "Arial Rounded MT Bold", sans-serif;
+      font-family: 'SF Pro Rails Native', sans-serif;
       font-weight: 600;
       font-size: min(180px, 15vw); /* Massive but safely contained */
       line-height: 0.8;
       
-      /* Apple iOS "Rails" hollow outline effect */
-      color: transparent;
-      -webkit-text-stroke: 4px rgba(255, 255, 255, 0.85);
-      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+      /* Restore frosted semi-transparent look since the font natively has the rails */
+      color: rgba(255, 255, 255, 0.65);
+      -webkit-text-stroke: 0; 
+      text-shadow: 0 4px 50px rgba(0, 0, 0, 0.3);
       
       letter-spacing: -0.01em;
       transform-origin: bottom right;
