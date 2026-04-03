@@ -242,7 +242,7 @@
 
     /* ── ABOUT ───────────────────── */
     .about-content { display: flex; flex-direction: column; gap: 22px; }
-    .about-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #5e9bff 0%, #bf5fff 100%); display: flex; align-items: center; justify-content: center; font-size: 38px; box-shadow: 0 6px 24px rgba(94,155,255,0.35); flex-shrink: 0; }
+    .about-avatar { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; display: block; box-shadow: 0 6px 24px rgba(0,0,0,0.5), 0 0 0 2px rgba(255,255,255,0.15); flex-shrink: 0; }
     .about-header { display: flex; align-items: center; gap: 20px; }
     .about-name h2 { font-size: 22px; font-weight: 700; color: var(--text-primary); }
     .about-name .handle { font-size: 14px; color: #7eb8ff; font-weight: 500; margin-top: 2px; }
@@ -532,7 +532,7 @@
     <div class="window-body">
       <div class="about-content">
         <div class="about-header">
-          <div class="about-avatar">🧑‍💻</div>
+          <img class="about-avatar" src="./Profile image.png" alt="Gabriels Bralis" />
           <div class="about-name">
             <h2>Gabriels Bralis</h2>
             <div class="handle">@Stacker</div>
