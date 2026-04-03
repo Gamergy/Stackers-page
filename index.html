@@ -319,7 +319,11 @@
     #win-stackersprog .window-body { background: #f2f4f7; padding: 32px 28px 28px; }
     .stackersprog-logo-design { width: 100%; max-width: 400px; display: block; margin: 0 auto 28px; }
     .stackersprog-heading { font-size: 20px; font-weight: 700; color: #1a2744; text-align: center; margin-bottom: 12px; letter-spacing: 0.01em; }
-    .stackersprog-desc-card { background: #ffffff; border: 1px solid #d8dde8; border-radius: 10px; padding: 18px 22px; margin: 0 auto 26px; max-width: 480px; font-size: 13px; line-height: 1.78; color: #3a4560; border-left: 4px solid #3b6cc9; }
+    .stackersprog-desc-card { background: #ffffff; border: 1px solid #d8dde8; border-radius: 10px; padding: 18px 22px; margin: 0 auto 26px; max-width: 480px; font-size: 13px; line-height: 1.78; color: #3a4560; border-left: 4px solid #3b6cc9; transition: opacity 0.2s; }
+    .stackersprog-bio-header { display: flex; align-items: center; justify-content: space-between; max-width: 480px; margin: 0 auto 8px; }
+    .stackersprog-bio-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7a99; }
+    .stackersprog-lang-toggle { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: #3b6cc9; background: rgba(59,108,201,0.1); border: 1px solid rgba(59,108,201,0.3); border-radius: 6px; padding: 3px 9px; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .stackersprog-lang-toggle:hover { background: rgba(59,108,201,0.2); }
     .btn-stackersprog { display: block; width: fit-content; margin: 0 auto; background: #1a2744; color: #ffffff; border: none; padding: 11px 32px; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; letter-spacing: 0.03em; transition: background 0.15s, transform 0.12s; }
     .btn-stackersprog:hover { background: #3b6cc9; transform: translateY(-1px); }
 
@@ -697,7 +701,11 @@
     <div class="window-body">
       <img class="stackersprog-logo-design" src="./StackersProg_logo_design.png" alt="StackersProg" />
       <div class="stackersprog-heading">StackersProg — Construction Software</div>
-      <div class="stackersprog-desc-card">A formwork slab optimization program built for construction professionals. Helps builders plan and calculate concrete slab frameworks efficiently.</div>
+      <div class="stackersprog-bio-header">
+        <span class="stackersprog-bio-label">About</span>
+        <button class="stackersprog-lang-toggle" id="sp-win-toggle" onclick="toggleSPLang()">EN / LV</button>
+      </div>
+      <div class="stackersprog-desc-card" id="sp-win-text">StackersProg is a specialized construction software built for formwork slab optimization. Designed for builders and construction professionals, it streamlines the planning and calculation of concrete slab frameworks — saving time, reducing material waste, and improving accuracy on site. Trusted by construction teams across Latvia, StackersProg simplifies one of the most complex parts of the building process, giving professionals a reliable and efficient tool to work with.</div>
       <a href="#" class="btn-stackersprog">Visit Website</a>
     </div>
   </div>
@@ -1107,6 +1115,20 @@ async function handleFormSubmit(e) {
       toast.textContent = '✅ Message sent! I\'ll get back to you soon.';
     }, 3500);
   }
+}
+
+/* ── STACKERSPROG LANGUAGE TOGGLE ────────────────── */
+const spText = {
+  en: 'StackersProg is a specialized construction software built for formwork slab optimization. Designed for builders and construction professionals, it streamlines the planning and calculation of concrete slab frameworks — saving time, reducing material waste, and improving accuracy on site. Trusted by construction teams across Latvia, StackersProg simplifies one of the most complex parts of the building process, giving professionals a reliable and efficient tool to work with.',
+  lv: 'StackersProg ir specializēta būvniecības programmatūra, kas izveidota cofraža plātņu optimizācijai. Paredzēta būvniekiem un būvniecības profesionāļiem — tā vienkāršo betona plātņu veidņu plānošanu un aprēķinus, ietaupot laiku, samazinot materiālu izšķērdēšanu un uzlabojot precizitāti būvobjektā. Uzticams rīks būvniecības komandām visā Latvijā, StackersProg vienkāršo vienu no sarežģītākajiem būvniecības procesa posmiem, nodrošinot profesionāļiem efektīvu un drošu darba rīku.'
+};
+let spLang = 'en';
+function toggleSPLang() {
+  spLang = spLang === 'en' ? 'lv' : 'en';
+  const el = document.getElementById('sp-win-text');
+  el.style.opacity = '0';
+  setTimeout(() => { el.textContent = spText[spLang]; el.style.opacity = '1'; }, 200);
+  document.getElementById('sp-win-toggle').textContent = spLang === 'en' ? 'EN / LV' : 'LV / EN';
 }
 
 /* ── SAMEROUTE LANGUAGE CONTENT ──────────────────── */
