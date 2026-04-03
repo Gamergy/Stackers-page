@@ -1266,13 +1266,17 @@ function toggleProjectCard(id) {
       if (e.propertyName !== 'transform') return;
       card.removeEventListener('transitionend', cleanup);
 
-      // Move card back into grid before ghost, restore all styles
-      ghost.parentNode.insertBefore(card, ghost);
-      ghost.remove();
-      card.classList.remove('expanding');
-      card.style.cssText = '';
-      if (expandedBody) { expandedBody.style.cssText = ''; }
-      _cardState[id] = { open: false };
+      // Hide for exactly one rAF so DOM surgery happens off-screen —
+      // card reappears already in its final static state, zero flash.
+      card.style.visibility = 'hidden';
+      requestAnimationFrame(() => {
+        ghost.parentNode.insertBefore(card, ghost);
+        ghost.remove();
+        card.classList.remove('expanding');
+        card.style.cssText = '';           // clears visibility + all expanding styles
+        if (expandedBody) { expandedBody.style.cssText = ''; }
+        _cardState[id] = { open: false };
+      });
     });
   }
 }
