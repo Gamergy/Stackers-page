@@ -313,9 +313,15 @@
     .card-bio-text { font-size: 12px; line-height: 1.75; color: var(--text-secondary); transition: opacity 0.2s; }
 
     /* ── STACKERSPROG WINDOW ─────── */
-    .stackersprog-logo-design { width: 100%; max-width: 420px; display: block; margin: 0 auto 20px; border-radius: 12px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
-    .stackersprog-heading { font-size: 20px; font-weight: 700; color: var(--text-primary); text-align: center; margin-bottom: 10px; }
-    .stackersprog-desc { font-size: 13px; line-height: 1.75; color: var(--text-secondary); text-align: center; max-width: 460px; margin: 0 auto 26px; }
+    #win-stackersprog { background: #f2f4f7; border: 1px solid #d0d6e0; box-shadow: 0 32px 80px rgba(0,0,0,0.45); }
+    #win-stackersprog .window-titlebar { background: #1a2744; border-bottom: 1px solid #111d36; }
+    #win-stackersprog .window-title { color: #ffffff; }
+    #win-stackersprog .window-body { background: #f2f4f7; padding: 32px 28px 28px; }
+    .stackersprog-logo-design { width: 100%; max-width: 400px; display: block; margin: 0 auto 28px; }
+    .stackersprog-heading { font-size: 20px; font-weight: 700; color: #1a2744; text-align: center; margin-bottom: 12px; letter-spacing: 0.01em; }
+    .stackersprog-desc-card { background: #ffffff; border: 1px solid #d8dde8; border-radius: 10px; padding: 18px 22px; margin: 0 auto 26px; max-width: 480px; font-size: 13px; line-height: 1.78; color: #3a4560; border-left: 4px solid #3b6cc9; }
+    .btn-stackersprog { display: block; width: fit-content; margin: 0 auto; background: #1a2744; color: #ffffff; border: none; padding: 11px 32px; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; letter-spacing: 0.03em; transition: background 0.15s, transform 0.12s; }
+    .btn-stackersprog:hover { background: #3b6cc9; transform: translateY(-1px); }
 
     /* ── SAMEROUTE WINDOW ────────── */
     .sameroute-logo { width: 76px; height: 76px; border-radius: 18px; overflow: hidden; background: #deddde; box-shadow: 0 6px 20px rgba(0,0,0,0.38), 0 1px 5px rgba(0,0,0,0.2); margin: 0 auto 18px; display: block; pointer-events: none; }
@@ -691,8 +697,8 @@
     <div class="window-body">
       <img class="stackersprog-logo-design" src="./StackersProg_logo_design.png" alt="StackersProg" />
       <div class="stackersprog-heading">StackersProg — Construction Software</div>
-      <div class="stackersprog-desc">A formwork slab optimization program built for construction professionals. Helps builders plan and calculate concrete slab frameworks efficiently.</div>
-      <a href="#" class="btn-visit">Visit Website</a>
+      <div class="stackersprog-desc-card">A formwork slab optimization program built for construction professionals. Helps builders plan and calculate concrete slab frameworks efficiently.</div>
+      <a href="#" class="btn-stackersprog">Visit Website</a>
     </div>
   </div>
 
