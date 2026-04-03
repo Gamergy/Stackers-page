@@ -327,6 +327,21 @@
     .card-bio-header { display: flex; justify-content: flex-end; margin: 14px 0 8px; }
     .card-bio-text { font-size: 12px; line-height: 1.75; color: var(--text-secondary); transition: opacity 0.2s; }
 
+    /* ── CHANNY WINDOW ──────────────*/
+    #win-channy { background: #1a1a1a; border: 1px solid #2e2e2e; box-shadow: 0 32px 80px rgba(0,0,0,0.7); }
+    #win-channy .window-titlebar { background: #1a1a1a; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    #win-channy .window-title { color: #f0f0f0; }
+    #win-channy .window-body { background: #1a1a1a; padding: 28px 24px; }
+    .channy-banner { width: 100%; max-width: 460px; display: block; margin: 0 auto 22px; border-radius: 12px; }
+    .channy-heading { font-size: 20px; font-weight: 700; color: #f0f0f0; text-align: center; margin-bottom: 14px; letter-spacing: 0.01em; }
+    #win-channy .bio-header { max-width: 520px; margin: 0 auto 8px; }
+    #win-channy .about-section-title { color: rgba(255,255,255,0.4); }
+    #win-channy .about-bio { background: #242424; border: 1px solid #333; border-left: 4px solid #e8453c; color: #cccccc; font-weight: 400; transition: opacity 0.2s; }
+    #win-channy .lang-toggle { color: #e8453c; background: rgba(232,69,60,0.12); border: 1px solid rgba(232,69,60,0.3); }
+    #win-channy .lang-toggle:hover { background: rgba(232,69,60,0.22); color: #ff6b63; }
+    .btn-channy { display: block; width: fit-content; margin: 20px auto 0; background: linear-gradient(135deg,#e8453c,#c0392b); color: #fff; border: none; padding: 11px 32px; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; letter-spacing: 0.03em; transition: filter 0.15s, transform 0.12s; }
+    .btn-channy:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
     /* ── STACKERSPROG WINDOW ─────── */
     #win-stackersprog { background: #f2f4f7; border: 1px solid #d0d6e0; box-shadow: 0 32px 80px rgba(0,0,0,0.45); }
     #win-stackersprog .window-titlebar { background: #1a2744; border-bottom: 1px solid #111d36; }
@@ -454,6 +469,13 @@
   <div class="desktop-icon" style="top:110px;left:36px;" onclick="openWindow('sameroute')">
     <svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg" aria-label="SameRoute">
       <image href="./SameRoute_logo.png" x="0" y="0" width="54" height="54" preserveAspectRatio="xMidYMid meet"/>
+    </svg>
+  </div>
+
+  <!-- Desktop Icon: Channy -->
+  <div class="desktop-icon" style="top:254px;left:36px;background:#1a1a1a;" onclick="openWindow('channy')">
+    <svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg" aria-label="Channy">
+      <image href="./Channy_logo.png" x="4" y="4" width="46" height="46" preserveAspectRatio="xMidYMid meet"/>
     </svg>
   </div>
 
@@ -601,11 +623,21 @@
           <p>Creative design project under development.</p>
           <span class="project-tag">Design</span>
         </div>
-        <div class="project-card coming-soon-card">
-          <div class="project-card-icon">⚙️</div>
-          <h3>Coming Soon</h3>
-          <p>More projects will be added here over time.</p>
-          <span class="project-tag">TBA</span>
+        <div class="project-card" id="card-channy" onclick="toggleProjectCard('channy')">
+          <div class="project-card-icon-img" style="background:#1a1a1a;">
+            <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <image href="./Channy_logo.png" x="3" y="3" width="38" height="38" preserveAspectRatio="xMidYMid meet"/>
+            </svg>
+          </div>
+          <h3>Channy</h3>
+          <p>AI-powered autonomous video creation and publishing platform</p>
+          <span class="project-tag">AI App</span>
+          <div class="card-expanded-body" id="card-channy-body">
+            <div class="card-bio-header">
+              <button class="lang-toggle" id="channy-card-toggle" onclick="event.stopPropagation(); toggleChannyCardLang()">EN / LV</button>
+            </div>
+            <div class="card-bio-text" id="channy-card-text">Channy is an intelligent video creation platform that automates the entire content production workflow. Upload your own footage or set search parameters, and Channy's AI agents handle everything — autonomous scene detection, smart clip extraction, emotion-driven editing via the built-in Remotion engine, and export-ready short-form content. No manual editing, no technical setup. Users connect their social media platform API keys to enable direct publishing to YouTube, TikTok, and more. A subscription plan funds the AI editing costs, so you just choose your settings and let Channy do the work — on mobile or desktop.</div>
+          </div>
         </div>
         <div class="project-card coming-soon-card">
           <div class="project-card-icon">✨</div>
@@ -720,6 +752,28 @@
   </div>
 
   <div id="toast">✅ Message sent! I'll get back to you soon.</div>
+
+  <!-- Window: Channy -->
+  <div class="mac-window" id="win-channy">
+    <div class="window-titlebar">
+      <div class="titlebar-buttons">
+        <button class="tb-btn tb-close"    onclick="closeWindow('channy')"></button>
+        <button class="tb-btn tb-minimize"></button>
+        <button class="tb-btn tb-expand"></button>
+      </div>
+      <div class="window-title">Channy</div>
+    </div>
+    <div class="window-body">
+      <img class="channy-banner" src="./Channy_banner.png" alt="Channy" />
+      <div class="channy-heading">Channy — AI Video Creation Suite</div>
+      <div class="bio-header" style="max-width:520px;margin:0 auto 8px;">
+        <div class="about-section-title">About</div>
+        <button class="lang-toggle" id="channy-win-toggle" onclick="toggleChannyWinLang()">EN / LV</button>
+      </div>
+      <div class="about-bio" id="channy-win-text">Channy is an intelligent video creation platform that automates the entire content production workflow. Upload your own footage or set search parameters, and Channy's AI agents handle everything — autonomous scene detection, smart clip extraction, emotion-driven editing via the built-in Remotion engine, and export-ready short-form content. No manual editing, no technical setup. Users connect their social media platform API keys to enable direct publishing to YouTube, TikTok, and more. A subscription plan funds the AI editing costs, so you just choose your settings and let Channy do the work — on mobile or desktop.</div>
+      <a href="#" class="btn-channy">Visit Website</a>
+    </div>
+  </div>
 
   <!-- Window: StackersProg -->
   <div class="mac-window" id="win-stackersprog">
@@ -1148,6 +1202,28 @@ async function handleFormSubmit(e) {
       toast.textContent = '✅ Message sent! I\'ll get back to you soon.';
     }, 3500);
   }
+}
+
+/* ── CHANNY LANGUAGE TOGGLE ──────────────────────── */
+const channyText = {
+  en: "Channy is an intelligent video creation platform that automates the entire content production workflow. Upload your own footage or set search parameters, and Channy's AI agents handle everything — autonomous scene detection, smart clip extraction, emotion-driven editing via the built-in Remotion engine, and export-ready short-form content. No manual editing, no technical setup. Users connect their social media platform API keys to enable direct publishing to YouTube, TikTok, and more. A subscription plan funds the AI editing costs, so you just choose your settings and let Channy do the work — on mobile or desktop.",
+  lv: "Channy ir inteliģenta video veidošanas platforma, kas automatizē visu satura producēšanas procesu. Augšupielādē savu video vai norādi meklēšanas parametrus, un Channy AI aģenti veic visu — autonoma ainas atpazīšana, viedo klipu izvēle, uz emocijām balstīta rediģēšana, izmantojot iebūvēto Remotion dzinēju, un gatavs eksports īsformas saturam. Lietotāji pievieno savas sociālo mediju platformu API atslēgas, lai iespējotu tiešu publicēšanu YouTube, TikTok un citur. Abonementa plāns sedz AI rediģēšanas izmaksas — vienkārši izvēlies iestatījumus un ļauj Channy darīt savu darbu — mobilajā vai datorā."
+};
+let channyWinLang = 'en';
+function toggleChannyWinLang() {
+  channyWinLang = channyWinLang === 'en' ? 'lv' : 'en';
+  const el = document.getElementById('channy-win-text');
+  el.style.opacity = '0';
+  setTimeout(() => { el.textContent = channyText[channyWinLang]; el.style.opacity = '1'; }, 200);
+  document.getElementById('channy-win-toggle').textContent = channyWinLang === 'en' ? 'EN / LV' : 'LV / EN';
+}
+let channyCardLang = 'en';
+function toggleChannyCardLang() {
+  channyCardLang = channyCardLang === 'en' ? 'lv' : 'en';
+  const el = document.getElementById('channy-card-text');
+  el.style.opacity = '0';
+  setTimeout(() => { el.textContent = channyText[channyCardLang]; el.style.opacity = '1'; }, 200);
+  document.getElementById('channy-card-toggle').textContent = channyCardLang === 'en' ? 'EN / LV' : 'LV / EN';
 }
 
 /* ── STACKERSPROG LANGUAGE TOGGLE ────────────────── */
