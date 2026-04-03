@@ -1239,11 +1239,15 @@ function toggleProjectCard(id) {
       ? Math.min(scaleX, scaleX) // proportional — use scaleX for both so it shrinks uniformly
       : scaleX;
 
-    /* Snap to original top/left instantly (no transition on position), then scale down */
+    /* Instantly hide expanded body so no ghost content shows during scale */
+    const expandedBody = card.querySelector('.card-expanded-body');
+    if (expandedBody) { expandedBody.style.transition = 'none'; expandedBody.style.maxHeight = '0'; expandedBody.style.opacity = '0'; }
+
+    /* Snap position instantly, then scale down */
     card.style.transition = 'none';
     card.style.top  = origTop  + 'px';
     card.style.left = origLeft + 'px';
-    card.style.width = (gridRect2.width) + 'px'; // keep full width, scale handles size
+    card.style.width = (gridRect2.width) + 'px';
     card.style.transformOrigin = 'top left';
 
     requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -1258,6 +1262,7 @@ function toggleProjectCard(id) {
       card.classList.remove('expanding');
       card.style.top = card.style.left = card.style.width = '';
       card.style.transform = card.style.opacity = card.style.transformOrigin = '';
+      if (expandedBody) { expandedBody.style.transition = expandedBody.style.maxHeight = expandedBody.style.opacity = ''; }
       ghost.remove();
     });
 
