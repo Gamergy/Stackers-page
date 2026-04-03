@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stacker — Portfolio</title>
+  <meta name="description" content="Gabriels Bralis (Stacker) — Personal Portfolio. A macOS-inspired desktop experience." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --glass-bg: rgba(28, 28, 30, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
+      --title-bar-bg: rgba(40, 40, 44, 0.88);
+      --text-primary: #f2f2f7;
+      --text-secondary: rgba(235, 235, 245, 0.6);
+      --radius-window: 14px;
+    }
+
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      background: #000;
+    }
+
+    /* ── DESKTOP ─────────────────── */
+    #desktop {
+      position: relative;
+      width: 100vw; height: 100vh;
+      background: #000;
+      overflow: hidden;
+    }
+
+    /* SVG particle layer — behind everything */
+    #bg-svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* ── MENU BAR ────────────────── */
+    #menubar {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 28px;
+      background: rgba(20, 20, 20, 0.55);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 14px;
+      z-index: 1000;
+    }
+    #menubar-left { display: flex; align-items: center; gap: 18px; }
+    .menu-apple { font-size: 15px; color: var(--text-primary); cursor: default; opacity: 0.9; }
+    .menu-item { font-size: 12px; font-weight: 500; color: var(--text-primary); opacity: 0.85; cursor: default; }
+    .menu-item:first-of-type { font-weight: 600; }
+    #menubar-right { display: flex; align-items: center; gap: 14px; }
+    #clock { font-size: 12px; font-weight: 500; color: var(--text-primary); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+    .menu-icon { font-size: 14px; color: var(--text-primary); opacity: 0.85; cursor: default; }
+
+    /* ── USERNAME ────────────────── */
+    #username-label {
+      position: absolute; top: 54px; right: 26px;
+      color: rgba(255,255,255,0.45);
+      font-size: 13px; font-weight: 400; letter-spacing: 0.04em;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+      z-index: 10; pointer-events: none;
+    }
+
+    /* ── DOCK ────────────────────── */
+    #dock-container {
+      position: absolute; bottom: 10px; left: 50%;
+      transform: translateX(-50%); z-index: 999;
+    }
+    #dock {
+      display: flex; align-items: flex-end; gap: 10px;
+      padding: 8px 16px 10px;
+      background: rgba(255,255,255,0.13);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 22px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.1) inset;
+    }
+    .dock-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative; }
+    .dock-icon-wrapper {
+      width: 54px; height: 54px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.45);
+      transform-origin: bottom center; will-change: transform;
+      overflow: hidden;
+    }
+    .dock-icon-wrapper svg { display: block; }
+    .dock-item:hover .dock-icon-wrapper { transform: scale(1.45) translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.45); }
+    .dock-item.neighbor-1 .dock-icon-wrapper { transform: scale(1.25) translateY(-5px); }
+    .dock-item.neighbor-2 .dock-icon-wrapper { transform: scale(1.12) translateY(-2px); }
+    .dock-label {
+      position: absolute; bottom: calc(100% + 10px); left: 50%;
+      transform: translateX(-50%) scale(0.8);
+      background: rgba(30,30,30,0.85); color: #fff;
+      font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 6px;
+      white-space: nowrap; opacity: 0; pointer-events: none;
+      transition: opacity 0.15s, transform 0.15s;
+      backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+    }
+    .dock-item:hover .dock-label { opacity: 1; transform: translateX(-50%) scale(1); }
+    .dock-dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.7); margin-top: 5px; transition: opacity 0.2s; opacity: 0; }
+    .dock-item.open .dock-dot { opacity: 1; }
+    .dock-separator { width: 1px; height: 44px; background: rgba(255,255,255,0.18); margin: 0 4px; align-self: center; }
+
+    /* ── WINDOWS ─────────────────── */
+    .mac-window {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.92);
+      width: min(700px, 90vw);
+      background: var(--glass-bg);
+      backdrop-filter: blur(40px) saturate(200%);
+      -webkit-backdrop-filter: blur(40px) saturate(200%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-window);
+      box-shadow: var(--glass-shadow), 0 0 0 0.5px rgba(255,255,255,0.06);
+      z-index: 500; opacity: 0; pointer-events: none;
+      transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1), transform 0.28s cubic-bezier(0.34, 1.2, 0.64, 1);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .mac-window.active { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: all; }
+    .window-titlebar {
+      height: 40px; background: var(--title-bar-bg);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; padding: 0 14px; gap: 8px; flex-shrink: 0; cursor: default;
+    }
+    .titlebar-buttons { display: flex; gap: 7px; align-items: center; }
+    .tb-btn { width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer; transition: filter 0.15s, transform 0.1s; flex-shrink: 0; }
+    .tb-btn:hover { filter: brightness(1.25); transform: scale(1.1); }
+    .tb-close    { background: #ff5f57; }
+    .tb-minimize { background: #febc2e; }
+    .tb-expand   { background: #28c840; }
+    .window-title { flex: 1; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-primary); margin-right: 50px; opacity: 0.9; letter-spacing: 0.01em; }
+    .window-body { flex: 1; overflow-y: auto; padding: 28px; color: var(--text-primary); }
+    .window-body::-webkit-scrollbar { width: 6px; }
+    .window-body::-webkit-scrollbar-track { background: transparent; }
+    .window-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+    /* ── PROJECTS ────────────────── */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+    .project-card {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 20px 18px;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s; cursor: pointer;
+    }
+    .project-card:hover { background: rgba(255,255,255,0.11); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+    .project-card-icon { font-size: 32px; margin-bottom: 12px; }
+    .project-card h3 { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+    .project-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .project-tag { display: inline-block; margin-top: 10px; font-size: 10px; font-weight: 600; background: rgba(94,155,255,0.18); color: #7eb8ff; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.03em; }
+    .coming-soon-card { opacity: 0.45; border-style: dashed; }
+    .coming-soon-card .project-card-icon { filter: grayscale(1); }
+
+    /* ── ABOUT ───────────────────── */
+    .about-content { display: flex; flex-direction: column; gap: 22px; }
+    .about-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #5e9bff 0%, #bf5fff 100%); display: flex; align-items: center; justify-content: center; font-size: 38px; box-shadow: 0 6px 24px rgba(94,155,255,0.35); flex-shrink: 0; }
+    .about-header { display: flex; align-items: center; gap: 20px; }
+    .about-name h2 { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+    .about-name .handle { font-size: 14px; color: #7eb8ff; font-weight: 500; margin-top: 2px; }
+    .about-bio { font-size: 14px; line-height: 1.75; color: var(--text-secondary); background: rgba(255,255,255,0.04); border-left: 3px solid rgba(94,155,255,0.5); padding: 14px 18px; border-radius: 0 8px 8px 0; }
+    .about-skills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .skill-chip { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: var(--text-primary); font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; transition: background 0.15s; }
+    .skill-chip:hover { background: rgba(255,255,255,0.14); }
+    .about-section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px; }
+
+    /* ── CONTACT ─────────────────── */
+    .contact-content { display: flex; flex-direction: column; gap: 18px; }
+    .contact-heading { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+    .contact-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 12px; font-weight: 500; color: var(--text-secondary); letter-spacing: 0.02em; }
+    .form-group input, .form-group textarea { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 14px; color: var(--text-primary); font-family: inherit; font-size: 13px; outline: none; transition: border-color 0.2s, background 0.2s; resize: vertical; }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: rgba(255,255,255,0.25); }
+    .form-group input:focus, .form-group textarea:focus { border-color: rgba(94,155,255,0.5); background: rgba(255,255,255,0.09); }
+    .form-group textarea { min-height: 110px; }
+    .btn-send { align-self: flex-start; background: linear-gradient(135deg, #5e9bff 0%, #7b6fff 100%); color: #fff; border: none; padding: 10px 26px; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 16px rgba(94,155,255,0.35); }
+    .btn-send:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 6px 22px rgba(94,155,255,0.45); }
+    .btn-send:active { transform: translateY(0); opacity: 0.85; }
+    .contact-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+    .contact-link { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 14px; color: var(--text-primary); text-decoration: none; font-size: 13px; font-weight: 500; transition: background 0.15s, transform 0.15s; }
+    .contact-link:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
+    .contact-divider { text-align: center; color: var(--text-secondary); font-size: 12px; position: relative; }
+    .contact-divider::before, .contact-divider::after { content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: rgba(255,255,255,0.1); }
+    .contact-divider::before { left: 0; }
+    .contact-divider::after  { right: 0; }
+
+    /* ── TOAST ───────────────────── */
+    #toast { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) translateY(16px); background: rgba(30,30,34,0.92); border: 1px solid rgba(255,255,255,0.12); color: #fff; font-size: 13px; font-weight: 500; padding: 10px 22px; border-radius: 10px; backdrop-filter: blur(20px); opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.25s; z-index: 9999; }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── BOOT ────────────────────── */
+    #boot-screen { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.8s ease; }
+    .boot-logo { text-align: center; }
+    .boot-logo span { font-size: 64px; }
+    .boot-logo p { color: rgba(255,255,255,0.55); font-size: 14px; margin-top: 16px; letter-spacing: 0.06em; font-weight: 300; }
+    .boot-bar-track { width: 160px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin: 20px auto 0; overflow: hidden; }
+    .boot-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #5e9bff, #bf5fff); border-radius: 2px; animation: bootFill 1.6s ease forwards; }
+    @keyframes bootFill { to { width: 100%; } }
+
+    /* ── RIPPLE ──────────────────── */
+    .ripple { position: absolute; pointer-events: none; border-radius: 50%; background: rgba(255,255,255,0.07); transform: scale(0); animation: rippleAnim 0.5s ease-out forwards; }
+    @keyframes rippleAnim { to { transform: scale(5); opacity: 0; } }
+  </style>
+</head>
+<body>
+
+<!-- Boot Screen -->
+<div id="boot-screen">
+  <div class="boot-logo">
+    <span>🖥️</span>
+    <p>Loading Stacker's Desktop…</p>
+    <div class="boot-bar-track"><div class="boot-bar-fill"></div></div>
+  </div>
+</div>
+
+<!-- Desktop -->
+<div id="desktop">
+
+  <!-- SVG particle background -->
+  <svg id="bg-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+
+  <!-- Menu Bar -->
+  <div id="menubar">
+    <div id="menubar-left">
+      <span class="menu-apple">&#63743;</span>
+      <span class="menu-item">Stacker</span>
+      <span class="menu-item">File</span>
+      <span class="menu-item">View</span>
+      <span class="menu-item">Help</span>
+    </div>
+    <div id="menubar-right">
+      <span class="menu-icon">🔋</span>
+      <span class="menu-icon">📶</span>
+      <div id="clock">12:00 AM</div>
+    </div>
+  </div>
+
+  <!-- Username -->
+  <div id="username-label">Stacker</div>
+
+  <!-- Dock -->
+  <div id="dock-container">
+    <div id="dock">
+      <!-- Projects icon: dark navy, 2×2 grid -->
+      <div class="dock-item" data-window="projects" id="dock-projects">
+        <div class="dock-icon-wrapper">
+          <svg width="54" height="54" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="gProj" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%"  stop-color="#1e3a5f"/>
+                <stop offset="100%" stop-color="#162d4a"/>
+              </linearGradient>
+              <!-- subtle gloss overlay -->
+              <linearGradient id="glProj" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"  stop-color="rgba(255,255,255,0.13)"/>
+                <stop offset="55%" stop-color="rgba(255,255,255,0)"/>
+              </linearGradient>
+            </defs>
+            <rect width="54" height="54" rx="14" fill="url(#gProj)"/>
+            <rect width="54" height="27" rx="0" fill="url(#glProj)"/>
+            <!-- 2×2 grid icon -->
+            <rect x="13" y="13" width="11" height="11" rx="2.5" fill="white" opacity="0.9"/>
+            <rect x="30" y="13" width="11" height="11" rx="2.5" fill="white" opacity="0.9"/>
+            <rect x="13" y="30" width="11" height="11" rx="2.5" fill="white" opacity="0.9"/>
+            <rect x="30" y="30" width="11" height="11" rx="2.5" fill="white" opacity="0.9"/>
+          </svg>
+        </div>
+        <div class="dock-label">Projects</div>
+        <div class="dock-dot"></div>
+      </div>
+
+      <!-- About Me icon: deep charcoal, person silhouette -->
+      <div class="dock-item" data-window="about" id="dock-about">
+        <div class="dock-icon-wrapper">
+          <svg width="54" height="54" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="gAbout" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%"  stop-color="#2a2a2e"/>
+                <stop offset="100%" stop-color="#1c1c1f"/>
+              </linearGradient>
+              <linearGradient id="glAbout" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"  stop-color="rgba(255,255,255,0.11)"/>
+                <stop offset="55%" stop-color="rgba(255,255,255,0)"/>
+              </linearGradient>
+            </defs>
+            <rect width="54" height="54" rx="14" fill="url(#gAbout)"/>
+            <rect width="54" height="27" rx="0" fill="url(#glAbout)"/>
+            <!-- head -->
+            <circle cx="27" cy="19" r="7" fill="white" opacity="0.92"/>
+            <!-- shoulders / body -->
+            <path d="M11 43 C11 34 43 34 43 43" fill="white" opacity="0.92"/>
+          </svg>
+        </div>
+        <div class="dock-label">About Me</div>
+        <div class="dock-dot"></div>
+      </div>
+
+      <div class="dock-separator"></div>
+
+      <!-- Contact icon: deep teal, envelope -->
+      <div class="dock-item" data-window="contact" id="dock-contact">
+        <div class="dock-icon-wrapper">
+          <svg width="54" height="54" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="gContact" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%"  stop-color="#0d3d38"/>
+                <stop offset="100%" stop-color="#092e2a"/>
+              </linearGradient>
+              <linearGradient id="glContact" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"  stop-color="rgba(255,255,255,0.12)"/>
+                <stop offset="55%" stop-color="rgba(255,255,255,0)"/>
+              </linearGradient>
+            </defs>
+            <rect width="54" height="54" rx="14" fill="url(#gContact)"/>
+            <rect width="54" height="27" rx="0" fill="url(#glContact)"/>
+            <!-- envelope body -->
+            <rect x="11" y="18" width="32" height="22" rx="3" fill="none" stroke="white" stroke-width="2.2" opacity="0.92"/>
+            <!-- envelope flap V -->
+            <polyline points="11,18 27,30 43,18" fill="none" stroke="white" stroke-width="2.2" stroke-linejoin="round" opacity="0.92"/>
+          </svg>
+        </div>
+        <div class="dock-label">Contact</div>
+        <div class="dock-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Window: Projects -->
+  <div class="mac-window" id="win-projects">
+    <div class="window-titlebar">
+      <div class="titlebar-buttons">
+        <button class="tb-btn tb-close"    onclick="closeWindow('projects')"></button>
+        <button class="tb-btn tb-minimize"></button>
+        <button class="tb-btn tb-expand"></button>
+      </div>
+      <div class="window-title">Projects</div>
+    </div>
+    <div class="window-body">
+      <div class="projects-grid">
+        <div class="project-card">
+          <div class="project-card-icon">🚀</div>
+          <h3>Project Alpha</h3>
+          <p>A placeholder for an upcoming project. Details coming soon.</p>
+          <span class="project-tag">Web Dev</span>
+        </div>
+        <div class="project-card">
+          <div class="project-card-icon">🎮</div>
+          <h3>Project Beta</h3>
+          <p>Another exciting placeholder. Stay tuned for more info.</p>
+          <span class="project-tag">Game Dev</span>
+        </div>
+        <div class="project-card">
+          <div class="project-card-icon">🎨</div>
+          <h3>Project Gamma</h3>
+          <p>Creative design project under development.</p>
+          <span class="project-tag">Design</span>
+        </div>
+        <div class="project-card coming-soon-card">
+          <div class="project-card-icon">⚙️</div>
+          <h3>Coming Soon</h3>
+          <p>More projects will be added here over time.</p>
+          <span class="project-tag">TBA</span>
+        </div>
+        <div class="project-card coming-soon-card">
+          <div class="project-card-icon">✨</div>
+          <h3>Coming Soon</h3>
+          <p>Even more to announce. Watch this space.</p>
+          <span class="project-tag">TBA</span>
+        </div>
+        <div class="project-card coming-soon-card">
+          <div class="project-card-icon">🌐</div>
+          <h3>Coming Soon</h3>
+          <p>Future project placeholder.</p>
+          <span class="project-tag">TBA</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Window: About Me -->
+  <div class="mac-window" id="win-about">
+    <div class="window-titlebar">
+      <div class="titlebar-buttons">
+        <button class="tb-btn tb-close"    onclick="closeWindow('about')"></button>
+        <button class="tb-btn tb-minimize"></button>
+        <button class="tb-btn tb-expand"></button>
+      </div>
+      <div class="window-title">About Me</div>
+    </div>
+    <div class="window-body">
+      <div class="about-content">
+        <div class="about-header">
+          <div class="about-avatar">🧑‍💻</div>
+          <div class="about-name">
+            <h2>Gabriels Bralis</h2>
+            <div class="handle">@Stacker</div>
+          </div>
+        </div>
+        <div>
+          <div class="about-section-title">Bio</div>
+          <div class="about-bio">
+            Hey, I'm Gabriels — known online as <strong>Stacker</strong>. I'm a developer and creator passionate about building cool things on the web. This is a placeholder bio — more details about my journey, skills, and interests will be filled in soon. Stay tuned!
+          </div>
+        </div>
+        <div>
+          <div class="about-section-title">Skills &amp; Technologies</div>
+          <div class="about-skills">
+            <span class="skill-chip">JavaScript</span>
+            <span class="skill-chip">HTML &amp; CSS</span>
+            <span class="skill-chip">React</span>
+            <span class="skill-chip">Node.js</span>
+            <span class="skill-chip">UI Design</span>
+            <span class="skill-chip">Git &amp; GitHub</span>
+            <span class="skill-chip">…and more</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Window: Contact -->
+  <div class="mac-window" id="win-contact">
+    <div class="window-titlebar">
+      <div class="titlebar-buttons">
+        <button class="tb-btn tb-close"    onclick="closeWindow('contact')"></button>
+        <button class="tb-btn tb-minimize"></button>
+        <button class="tb-btn tb-expand"></button>
+      </div>
+      <div class="window-title">Contact</div>
+    </div>
+    <div class="window-body">
+      <div class="contact-content">
+        <div>
+          <div class="contact-heading">Let's connect 👋</div>
+          <div class="contact-sub">Drop a message or find me on social media.</div>
+        </div>
+        <div class="contact-links">
+          <a href="#" class="contact-link">𝕏 Twitter / X</a>
+          <a href="#" class="contact-link">💬 Discord</a>
+          <a href="#" class="contact-link">💼 LinkedIn</a>
+          <a href="#" class="contact-link">🐙 GitHub</a>
+        </div>
+        <div class="contact-divider">or send a message</div>
+        <form id="contact-form" onsubmit="handleFormSubmit(event)">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="form-group">
+              <label for="cf-name">Your Name</label>
+              <input id="cf-name" type="text" placeholder="Ada Lovelace" required />
+            </div>
+            <div class="form-group">
+              <label for="cf-email">Email Address</label>
+              <input id="cf-email" type="email" placeholder="hello@example.com" required />
+            </div>
+            <div class="form-group">
+              <label for="cf-message">Message</label>
+              <textarea id="cf-message" placeholder="What's on your mind?" required></textarea>
+            </div>
+            <button type="submit" class="btn-send">Send Message 🚀</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast">✅ Message sent! I'll get back to you soon.</div>
+
+</div>
+
+<script>
+/* ================================================================
+   SVG PARTICLE SYSTEM
+   – Dots are invisible when cursor is idle / absent
+   – Dots fade in as cursor enters their zone (radius ~400px)
+   – Closest dots = perfect circles; farther = stretched ellipses
+     pointing radially away from cursor (pulled-away illusion)
+   – Cursor repels dots; they spring back on idle
+   – Pure SVG ellipse elements: razor-sharp at any zoom
+================================================================ */
+(function () {
+  const SVG_NS  = 'http://www.w3.org/2000/svg';
+  const svg     = document.getElementById('bg-svg');
+
+  /* ── tunables ── */
+  const N            = 520;    // total particles
+  const MAX_R        = 400;    // cursor influence radius (px)
+  const FADE_INNER   = 80;     // full-opacity zone inside MAX_R
+  const REPEL_STR    = 8.5;    // repel push strength
+  const SPRING       = 0.048;  // spring-back force
+  const DAMP         = 0.76;   // velocity damping per frame
+  const MAX_ELONG    = 5.5;    // elongation factor at MAX_R (rx = baseR * MAX_ELONG)
+  const BASE_R_MIN   = 1.4;    // min base radius
+  const BASE_R_MAX   = 3.2;    // max base radius
+
+  let W = window.innerWidth;
+  let H = window.innerHeight;
+  let mX = -9999, mY = -9999;
+  let hasMouse = false;
+
+  svg.setAttribute('width',  W);
+  svg.setAttribute('height', H);
+
+  window.addEventListener('resize', () => {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    svg.setAttribute('width',  W);
+    svg.setAttribute('height', H);
+  });
+
+  /* ── build particle pool ── */
+  const particles = [];
+  const elems     = [];
+
+  for (let i = 0; i < N; i++) {
+    const ox = Math.random() * W;
+    const oy = Math.random() * H;
+    const br = BASE_R_MIN + Math.random() * (BASE_R_MAX - BASE_R_MIN);
+
+    particles.push({ ox, oy, x: ox, y: oy, vx: 0, vy: 0, baseR: br, visible: false });
+
+    const el = document.createElementNS(SVG_NS, 'ellipse');
+    el.setAttribute('fill',    'white');
+    el.setAttribute('opacity', '0');
+    el.setAttribute('cx',      '0');
+    el.setAttribute('cy',      '0');
+    el.setAttribute('rx',      br);
+    el.setAttribute('ry',      br);
+    svg.appendChild(el);
+    elems.push(el);
+  }
+
+  /* ── mouse ── */
+  document.addEventListener('mousemove', e => {
+    mX = e.clientX;
+    mY = e.clientY;
+    hasMouse = true;
+  });
+
+  /* Hide all dots when mouse leaves the window */
+  document.addEventListener('mouseleave', () => { hasMouse = false; });
+
+  /* ── animation loop ── */
+  function loop() {
+    requestAnimationFrame(loop);
+
+    for (let i = 0; i < N; i++) {
+      const p  = particles[i];
+      const el = elems[i];
+
+      /* vector from cursor to particle */
+      const dx   = p.x - mX;
+      const dy   = p.y - mY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      /* ── opacity: 0 when cursor absent or beyond MAX_R ── */
+      let opacity = 0;
+      if (hasMouse && dist < MAX_R) {
+        /* ramp: 0 at MAX_R edge → 1 inside FADE_INNER */
+        opacity = dist <= FADE_INNER
+          ? 1
+          : 1 - (dist - FADE_INNER) / (MAX_R - FADE_INNER);
+        opacity = Math.max(0, Math.min(1, opacity));
+      }
+
+      /* ── physics: only run if particle could be visible ── */
+      if (hasMouse && dist < MAX_R + 60) {
+        /* repel */
+        if (dist > 0.5) {
+          const force = Math.max(0, (1 - dist / MAX_R)) * REPEL_STR;
+          p.vx += (dx / dist) * force;
+          p.vy += (dy / dist) * force;
+        }
+      }
+      /* spring back to home */
+      p.vx += (p.ox - p.x) * SPRING;
+      p.vy += (p.oy - p.y) * SPRING;
+      p.vx *= DAMP;
+      p.vy *= DAMP;
+      p.x  += p.vx;
+      p.y  += p.vy;
+
+      /* ── skip DOM update for fully-invisible settled particles ── */
+      const settled = Math.abs(p.vx) < 0.01 && Math.abs(p.vy) < 0.01;
+      if (!hasMouse && settled && !p.visible) continue;
+
+      p.visible = opacity > 0;
+
+      /* ── shape morphing ── */
+      /* ratio: 0 = at cursor, 1 = at MAX_R edge */
+      const ratio = Math.min(1, dist / MAX_R);
+      const rx    = p.baseR * (1 + (MAX_ELONG - 1) * ratio * ratio); // ease-in curve
+      const ry    = p.baseR;
+
+      /* angle from cursor → particle (outward direction = elongation axis) */
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+      /* use CSS transform on the SVG element (GPU accelerated) */
+      el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px) rotate(${angle.toFixed(1)}deg)`;
+      el.style.opacity   = opacity.toFixed(3);
+      el.setAttribute('rx', rx.toFixed(2));
+      el.setAttribute('ry', ry.toFixed(2));
+    }
+  }
+
+  loop();
+})();
+
+/* ================================================================
+   BOOT
+================================================================ */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const boot = document.getElementById('boot-screen');
+    boot.style.opacity = '0';
+    setTimeout(() => boot.remove(), 820);
+  }, 1900);
+});
+
+/* ================================================================
+   CLOCK
+================================================================ */
+function updateClock() {
+  const now  = new Date();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const mons = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const h    = now.getHours(), m = now.getMinutes().toString().padStart(2,'0');
+  document.getElementById('clock').textContent =
+    `${days[now.getDay()]} ${mons[now.getMonth()]} ${now.getDate()}  ${h%12||12}:${m} ${h>=12?'PM':'AM'}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ================================================================
+   WINDOW MANAGEMENT
+================================================================ */
+const openWindows = {};
+
+function openWindow(id) {
+  const win  = document.getElementById(`win-${id}`);
+  const item = document.querySelector(`[data-window="${id}"]`);
+  if (!win) return;
+  document.querySelectorAll('.mac-window').forEach(w => w.style.zIndex = 500);
+  win.style.zIndex = 600;
+  win.classList.add('active');
+  openWindows[id] = true;
+  if (item) item.classList.add('open');
+}
+
+function closeWindow(id) {
+  const win  = document.getElementById(`win-${id}`);
+  const item = document.querySelector(`[data-window="${id}"]`);
+  if (!win) return;
+  win.classList.remove('active');
+  delete openWindows[id];
+  if (item) item.classList.remove('open');
+}
+
+document.querySelectorAll('.dock-item').forEach(item => {
+  item.addEventListener('click', e => {
+    const id  = item.getAttribute('data-window');
+    const desk = document.getElementById('desktop');
+    const rect = desk.getBoundingClientRect();
+    const rip  = document.createElement('div');
+    rip.className = 'ripple';
+    rip.style.cssText = `width:60px;height:60px;left:${e.clientX-rect.left-30}px;top:${e.clientY-rect.top-30}px`;
+    desk.appendChild(rip);
+    setTimeout(() => rip.remove(), 520);
+    openWindows[id] ? closeWindow(id) : openWindow(id);
+  });
+});
+
+/* Dock magnification */
+const dock      = document.getElementById('dock');
+const dockItems = [...document.querySelectorAll('.dock-item')];
+
+dock.addEventListener('mousemove', e => {
+  dockItems.forEach(item => {
+    const icon = item.querySelector('.dock-icon-wrapper');
+    const rect = icon.getBoundingClientRect();
+    const cx   = rect.left + rect.width / 2;
+    const dist = Math.abs(e.clientX - cx);
+    item.classList.remove('neighbor-1','neighbor-2');
+    if (!item.matches(':hover') && dist < 110) {
+      const r = 1 - dist / 110;
+      if (r > 0.55) item.classList.add('neighbor-1');
+      else if (r > 0.2) item.classList.add('neighbor-2');
+    }
+  });
+});
+dock.addEventListener('mouseleave', () => {
+  dockItems.forEach(item => item.classList.remove('neighbor-1','neighbor-2'));
+});
+
+/* Bring window to front */
+document.querySelectorAll('.mac-window').forEach(win => {
+  win.addEventListener('mousedown', () => {
+    document.querySelectorAll('.mac-window').forEach(w => w.style.zIndex = 500);
+    win.style.zIndex = 600;
+  });
+});
+
+/* Contact form */
+function handleFormSubmit(e) {
+  e.preventDefault();
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3500);
+  e.target.reset();
+}
+</script>
+</body>
+</html>
