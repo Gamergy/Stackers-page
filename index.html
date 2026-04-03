@@ -248,7 +248,11 @@
     .about-header { display: flex; align-items: center; gap: 20px; }
     .about-name h2 { font-size: 22px; font-weight: 700; color: var(--text-primary); }
     .about-name .handle { font-size: 14px; color: #7eb8ff; font-weight: 500; margin-top: 2px; }
-    .about-bio { font-size: 14px; line-height: 1.75; color: var(--text-secondary); background: rgba(255,255,255,0.04); border-left: 3px solid rgba(94,155,255,0.5); padding: 14px 18px; border-radius: 0 8px 8px 0; }
+    .about-bio { font-size: 14px; line-height: 1.75; color: var(--text-secondary); background: rgba(255,255,255,0.04); border-left: 3px solid rgba(94,155,255,0.5); padding: 14px 18px; border-radius: 0 8px 8px 0; transition: opacity 0.2s; }
+    .bio-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .bio-header .about-section-title { margin-bottom: 0; }
+    .lang-toggle { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: var(--text-secondary); background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 3px 9px; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .lang-toggle:hover { background: rgba(255,255,255,0.13); color: var(--text-primary); }
     .about-skills { display: flex; flex-wrap: wrap; gap: 8px; }
     .skill-chip { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: var(--text-primary); font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; transition: background 0.15s; }
     .skill-chip:hover { background: rgba(255,255,255,0.14); }
@@ -532,9 +536,12 @@
           </div>
         </div>
         <div>
-          <div class="about-section-title">Bio</div>
-          <div class="about-bio">
-            Hey, I'm Gabriels — known online as <strong>Stacker</strong>. I'm a developer and creator passionate about building cool things on the web. This is a placeholder bio — more details about my journey, skills, and interests will be filled in soon. Stay tuned!
+          <div class="bio-header">
+            <div class="about-section-title">Bio</div>
+            <button class="lang-toggle" id="lang-toggle" onclick="toggleBioLang()">EN / LV</button>
+          </div>
+          <div class="about-bio" id="about-bio-text">
+            Gabriels Bralis, known online as Stacker — a developer, builder, and AI integrator based in Latvia. Co-founder of SameRoute, a startup pushing new ideas forward. Creator of StackerProg — a construction program built for slab frameworking optimization. Solo developer of Channy, an autonomous video pipeline application. I help businesses integrate AI to improve efficiency and streamline operations. I work across web design, web apps, and local applications, and have worked with clients across Latvia and beyond. Deeply connected within the Baltic IT sphere.
           </div>
         </div>
         <div>
@@ -988,6 +995,23 @@ async function handleFormSubmit(e) {
       toast.textContent = '✅ Message sent! I\'ll get back to you soon.';
     }, 3500);
   }
+}
+
+/* ── BIO LANGUAGE TOGGLE ─────────────────────────── */
+const bioText = {
+  en: 'Gabriels Bralis, known online as Stacker — a developer, builder, and AI integrator based in Latvia. Co-founder of SameRoute, a startup pushing new ideas forward. Creator of StackerProg — a construction program built for slab frameworking optimization. Solo developer of Channy, an autonomous video pipeline application. I help businesses integrate AI to improve efficiency and streamline operations. I work across web design, web apps, and local applications, and have worked with clients across Latvia and beyond. Deeply connected within the Baltic IT sphere.',
+  lv: 'Gabriels Bralis, tiešsaistē pazīstams kā Stacker — izstrādātājs, veidotājs un mākslīgā intelekta integrācijas speciālists no Latvijas. SameRoute līdzdibinātājs — jaunuzņēmums, kas virza jaunas idejas uz priekšu. StackerProg radītājs — būvniecības programma plātņu veidņu optimizācijai. Channy — autonomas video apstrādes lietotnes izstrādātājs. Palīdzu uzņēmumiem integrēt MI, lai uzlabotu efektivitāti. Strādāju web dizaina, web aplikāciju un lokālo aplikāciju jomā. Pieredze ar klientiem visā Latvijā un ārpus tās. Plaši sakari Baltijas IT vidē.'
+};
+let bioLang = 'en';
+function toggleBioLang() {
+  bioLang = bioLang === 'en' ? 'lv' : 'en';
+  const el = document.getElementById('about-bio-text');
+  el.style.opacity = '0';
+  setTimeout(() => {
+    el.textContent = bioText[bioLang];
+    el.style.opacity = '1';
+  }, 200);
+  document.getElementById('lang-toggle').textContent = bioLang === 'en' ? 'EN / LV' : 'LV / EN';
 }
 
 /* ── MENUBAR CUSTOM U-CURVE SHAPE ─────────────────── */
