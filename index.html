@@ -1248,35 +1248,33 @@ function toggleProjectCard(id) {
     _cardState[id] = { open: true, ghost, body, scaleX, scaleY, ox, oy };
 
   } else {
-    /* ── COLLAPSE ── */
+    /* ── COLLAPSE — instant hide overlay, fade normal card back in ── */
     const { ghost, body, scaleX, scaleY, ox, oy } = state;
     const expandedBody = card.querySelector('.card-expanded-body');
 
-    // Hide expanded content instantly — no shrunken text visible during animation
-    if (expandedBody) {
-      expandedBody.style.cssText = 'transition:none;opacity:0;max-height:0;';
-    }
+    // 1. Instantly remove the overlay — no scale animation, no in-between state
+    card.style.cssText = '';
+    card.classList.remove('expanding');
+    if (expandedBody) { expandedBody.style.cssText = ''; }
 
-    // Animate scale back to card size — card stays fully solid throughout
-    card.style.transition = 'transform 0.44s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s';
-    card.style.transform  = `scale(${scaleX},${scaleY})`;
-    card.style.boxShadow  = 'none';
+    // 2. Move card back into the grid in place of ghost
+    ghost.parentNode.insertBefore(card, ghost);
+    ghost.remove();
 
+    // 3. Start card fully transparent, then fade in
+    card.style.opacity    = '0';
+    card.style.transition = 'none';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      card.style.transition = 'opacity 0.22s ease-out';
+      card.style.opacity    = '1';
+    }));
+
+    // Clean up inline opacity when fade is done
     card.addEventListener('transitionend', function cleanup(e) {
-      if (e.propertyName !== 'transform') return;
+      if (e.propertyName !== 'opacity') return;
       card.removeEventListener('transitionend', cleanup);
-
-      // Hide for exactly one rAF so DOM surgery happens off-screen —
-      // card reappears already in its final static state, zero flash.
-      card.style.visibility = 'hidden';
-      requestAnimationFrame(() => {
-        ghost.parentNode.insertBefore(card, ghost);
-        ghost.remove();
-        card.classList.remove('expanding');
-        card.style.cssText = '';           // clears visibility + all expanding styles
-        if (expandedBody) { expandedBody.style.cssText = ''; }
-        _cardState[id] = { open: false };
-      });
+      card.style.opacity = card.style.transition = '';
+      _cardState[id] = { open: false };
     });
   }
 }
