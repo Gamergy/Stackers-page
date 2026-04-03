@@ -564,11 +564,21 @@
             <div class="card-bio-text" id="sr-card-text">Sameroute is a smart mobility platform designed for schools and municipalities to make student transportation safer, more efficient, and less stressful for families. The app connects parents who can act as drivers with other families in their area, allowing them to share rides to and from school. By organizing trips in advance or joining nearby active routes in real time, Sameroute reduces traffic congestion, saves time, and optimizes transport resources. With a strong focus on safety, transparency, and community trust, Sameroute enables guardians to manage their children's rides, track journeys, and ensure reliable daily transportation — all in one place.</div>
           </div>
         </div>
-        <div class="project-card">
-          <div class="project-card-icon">🎮</div>
-          <h3>Project Beta</h3>
-          <p>Another exciting placeholder. Stay tuned for more info.</p>
-          <span class="project-tag">Game Dev</span>
+        <div class="project-card" id="card-stackersprog" onclick="toggleProjectCard('stackersprog')">
+          <div class="project-card-icon-img" style="background:#ffffff;">
+            <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <image href="./StackersProg_logo.png" x="3" y="3" width="38" height="38" preserveAspectRatio="xMidYMid meet"/>
+            </svg>
+          </div>
+          <h3>StackersProg</h3>
+          <p>Specialized formwork slab optimization software for construction professionals</p>
+          <span class="project-tag">Construction Software</span>
+          <div class="card-expanded-body" id="card-stackersprog-body">
+            <div class="card-bio-header">
+              <button class="lang-toggle" id="sp-card-toggle" onclick="event.stopPropagation(); toggleSPCardLang()">EN / LV</button>
+            </div>
+            <div class="card-bio-text" id="sp-card-text">StackersProg is a specialized construction software built for formwork slab optimization. Designed for builders and construction professionals, it streamlines the planning and calculation of concrete slab frameworks — saving time, reducing material waste, and improving accuracy on site. Trusted by construction teams across Latvia, StackersProg simplifies one of the most complex parts of the building process, giving professionals a reliable and efficient tool to work with.</div>
+          </div>
         </div>
         <div class="project-card">
           <div class="project-card-icon">🎨</div>
@@ -1168,6 +1178,16 @@ function toggleSRCardLang() {
 /* Project card expand/collapse */
 function toggleProjectCard(id) {
   document.getElementById(`card-${id}`).classList.toggle('expanded');
+}
+
+/* StackersProg card language toggle */
+let spCardLang = 'en';
+function toggleSPCardLang() {
+  spCardLang = spCardLang === 'en' ? 'lv' : 'en';
+  const el = document.getElementById('sp-card-text');
+  el.style.opacity = '0';
+  setTimeout(() => { el.textContent = spText[spCardLang]; el.style.opacity = '1'; }, 200);
+  document.getElementById('sp-card-toggle').textContent = spCardLang === 'en' ? 'EN / LV' : 'LV / EN';
 }
 
 /* ── BIO LANGUAGE TOGGLE ─────────────────────────── */
