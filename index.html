@@ -55,16 +55,24 @@
     }
 
     /* ── MENU BAR ────────────────── */
-    #menubar {
+    #menubar-bg {
       position: absolute; top: 0; left: 0; right: 0;
-      height: 28px;
+      height: 90px;
       background: rgba(20, 20, 20, 0.55);
       backdrop-filter: blur(30px) saturate(180%);
       -webkit-backdrop-filter: blur(30px) saturate(180%);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      clip-path: url(#menubar-shape);
+      z-index: 999;
+      pointer-events: none;
+    }
+    #menubar {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 28px;
+      background: transparent;
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 14px;
-      z-index: 1000;
+      z-index: 1001;
+      overflow: visible;
     }
     #menubar-left { display: flex; align-items: center; gap: 18px; }
     .menu-apple { font-size: 15px; color: var(--text-primary); cursor: default; opacity: 0.9; }
@@ -73,6 +81,29 @@
     #menubar-right { display: flex; align-items: center; gap: 14px; }
     #clock { font-size: 12px; font-weight: 500; color: var(--text-primary); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
     .menu-icon { font-size: 14px; color: var(--text-primary); opacity: 0.85; cursor: default; }
+
+    /* ── MENU BAR CENTER TEXT ────── */
+    #menubar-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 0;
+      height: 90px;
+      padding-top: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 1002;
+    }
+    #menubar-center-text {
+      font-family: 'SF Pro Rails Native', sans-serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: 0.02em;
+    }
 
     /* ── USERNAME ────────────────── */
     #username-label {
@@ -283,6 +314,17 @@
     <div id="desktop-date">Friday, April 3</div>
   </div>
 
+  <!-- Menubar SVG clip path (hidden) -->
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <clipPath id="menubar-shape" clipPathUnits="userSpaceOnUse">
+        <path id="menubar-shape-path"/>
+      </clipPath>
+    </defs>
+  </svg>
+  <!-- Menubar glass background, clipped to custom U-curve shape -->
+  <div id="menubar-bg"></div>
+
   <!-- Menu Bar -->
   <div id="menubar">
     <div id="menubar-left">
@@ -291,6 +333,9 @@
       <span class="menu-item">File</span>
       <span class="menu-item">View</span>
       <span class="menu-item">Help</span>
+    </div>
+    <div id="menubar-center">
+      <span id="menubar-center-text">Gabriels Portfolio</span>
     </div>
     <div id="menubar-right">
       <span class="menu-icon">🔋</span>
@@ -839,6 +884,38 @@ function handleFormSubmit(e) {
   setTimeout(() => toast.classList.remove('show'), 3500);
   e.target.reset();
 }
+
+/* ── MENUBAR CUSTOM U-CURVE SHAPE ─────────────────── */
+(function () {
+  function updateMenubarShape() {
+    const W = window.innerWidth;
+    // barH: height of thin bar
+    // dropH: total height from top to bottom of droop
+    // hw: half-width of the flat droop section
+    // outerR: radius of the smooth transition corner (bar → droop wall)
+    // br: radius of the rounded bottom corners
+    const barH = 28, dropH = 86, hw = 185, outerR = 64, br = 26;
+    const c = W / 2;
+    const d = [
+      `M0,0`,
+      `H${c - hw - outerR}`,
+      `Q${c - hw},0 ${c - hw},${outerR}`,
+      `V${dropH - br}`,
+      `Q${c - hw},${dropH} ${c - hw + br},${dropH}`,
+      `H${c + hw - br}`,
+      `Q${c + hw},${dropH} ${c + hw},${dropH - br}`,
+      `V${outerR}`,
+      `Q${c + hw},0 ${c + hw + outerR},0`,
+      `H${W}`,
+      `V${barH}`,
+      `H0`,
+      `Z`
+    ].join(' ');
+    document.getElementById('menubar-shape-path').setAttribute('d', d);
+  }
+  updateMenubarShape();
+  window.addEventListener('resize', updateMenubarShape);
+})();
 </script>
 </body>
 </html>
