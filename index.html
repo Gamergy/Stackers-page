@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Stacker — Portfolio</title>
   <meta name="description" content="Gabriels Bralis (Stacker) — Personal Portfolio. A macOS-inspired desktop experience." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -285,6 +285,34 @@
     .boot-bar-track { width: 160px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin: 20px auto 0; overflow: hidden; }
     .boot-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #5e9bff, #bf5fff); border-radius: 2px; animation: bootFill 1.6s ease forwards; }
     @keyframes bootFill { to { width: 100%; } }
+
+    /* ── MOBILE ──────────────────── */
+    @media (max-width: 768px) {
+      /* Lift dock above home indicator / nav bar */
+      #dock-container {
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+      }
+
+      /* Windows: fill safe area between menubar badge and dock */
+      .mac-window {
+        position: fixed !important;
+        top: 94px !important;
+        left: 6px !important;
+        right: 6px !important;
+        width: auto !important;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 100px) !important;
+        transform: scale(0.95) !important;
+        border-radius: 14px !important;
+        max-height: none !important;
+      }
+      .mac-window.active {
+        transform: scale(1) !important;
+      }
+      .window-body {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
 
     /* ── RIPPLE ──────────────────── */
     .ripple { position: absolute; pointer-events: none; border-radius: 50%; background: rgba(255,255,255,0.07); transform: scale(0); animation: rippleAnim 0.5s ease-out forwards; }
@@ -602,7 +630,7 @@
 
   let W = window.innerWidth;
   let H = window.innerHeight;
-  let mX = -9999, mY = -9999;
+  let pointers = [];   // [{x, y}] — mouse or active touch points
   let hasMouse = false;
 
   svg.setAttribute('width',  W);
@@ -639,13 +667,27 @@
 
   /* ── mouse ── */
   document.addEventListener('mousemove', e => {
-    mX = e.clientX;
-    mY = e.clientY;
+    pointers = [{ x: e.clientX, y: e.clientY }];
     hasMouse = true;
   });
-
-  /* Hide all dots when mouse leaves the window */
   document.addEventListener('mouseleave', () => { hasMouse = false; });
+
+  /* ── touch (single + multi-finger) ── */
+  function touchesToPointers(e) {
+    return Array.from(e.touches).map(t => ({ x: t.clientX, y: t.clientY }));
+  }
+  document.addEventListener('touchstart', e => {
+    pointers = touchesToPointers(e);
+    hasMouse = pointers.length > 0;
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    pointers = touchesToPointers(e);
+    hasMouse = pointers.length > 0;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    pointers = touchesToPointers(e);
+    hasMouse = pointers.length > 0;
+  }, { passive: true });
 
   /* ── animation loop ── */
   function loop() {
@@ -655,12 +697,24 @@
       const p  = particles[i];
       const el = elems[i];
 
-      /* vector from cursor to particle */
-      const dx   = p.x - mX;
-      const dy   = p.y - mY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      /* ── gather influence from all active pointers ── */
+      let minDist = Infinity, closestDx = 0, closestDy = 0, fx = 0, fy = 0;
+      for (const pt of pointers) {
+        const ddx = p.x - pt.x;
+        const ddy = p.y - pt.y;
+        const d   = Math.sqrt(ddx * ddx + ddy * ddy);
+        if (d < minDist) { minDist = d; closestDx = ddx; closestDy = ddy; }
+        if (d > 0.5 && d < MAX_R + 60) {
+          const force = Math.max(0, (1 - d / MAX_R)) * REPEL_STR;
+          fx += (ddx / d) * force;
+          fy += (ddy / d) * force;
+        }
+      }
+      const dist = minDist;
+      const dx   = closestDx;  // used below for elongation angle
+      const dy   = closestDy;
 
-      /* ── opacity: 0 when cursor absent or beyond MAX_R ── */
+      /* ── opacity: 0 when no pointer or beyond MAX_R ── */
       let opacity = 0;
       if (hasMouse && dist < MAX_R) {
         /* ramp: 0 at MAX_R edge → 1 inside FADE_INNER */
@@ -670,14 +724,10 @@
         opacity = Math.max(0, Math.min(1, opacity));
       }
 
-      /* ── physics: only run if particle could be visible ── */
-      if (hasMouse && dist < MAX_R + 60) {
-        /* repel */
-        if (dist > 0.5) {
-          const force = Math.max(0, (1 - dist / MAX_R)) * REPEL_STR;
-          p.vx += (dx / dist) * force;
-          p.vy += (dy / dist) * force;
-        }
+      /* ── physics: apply combined repel forces ── */
+      if (hasMouse && pointers.length > 0) {
+        p.vx += fx;
+        p.vy += fy;
       }
       /* spring back to home */
       p.vx += (p.ox - p.x) * SPRING;
