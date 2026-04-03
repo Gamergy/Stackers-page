@@ -7,7 +7,7 @@
   <meta name="description" content="Gabriels Bralis (Stacker) — Personal Portfolio. A macOS-inspired desktop experience." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -74,6 +74,39 @@
       font-size: 13px; font-weight: 400; letter-spacing: 0.04em;
       text-shadow: 0 1px 6px rgba(0,0,0,0.5);
       z-index: 10; pointer-events: none;
+    }
+
+    /* ── DESKTOP CLOCK ───────────── */
+    #desktop-clock {
+      position: absolute;
+      bottom: 120px; /* sits safely above the dock hover expansion */
+      right: 48px;
+      z-index: 10;   /* above particle bg, below windows */
+      pointer-events: none;
+      text-align: right;
+    }
+    
+    #desktop-time {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: min(220px, 18vw); /* Huge, responsive size */
+      line-height: 0.8;
+      color: rgba(255, 255, 255, 0.85);
+      letter-spacing: 0.02em;
+      text-shadow: 0 4px 40px rgba(0,0,0,0.5);
+      /* This gives it the "ultra-condensed / tall" look common in aesthetic screensavers */
+      transform: scaleY(1.4); 
+      transform-origin: bottom right;
+    }
+    
+    #desktop-date {
+      font-family: 'Inter', sans-serif;
+      font-size: 22px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 25px; /* accounts for the scaleY above it */
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
 
     /* ── DOCK ────────────────────── */
@@ -233,6 +266,12 @@
 
   <!-- SVG particle background -->
   <svg id="bg-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+
+  <!-- Large Desktop Clock -->
+  <div id="desktop-clock">
+    <div id="desktop-time">12:00</div>
+    <div id="desktop-date">Friday, April 3</div>
+  </div>
 
   <!-- Menu Bar -->
   <div id="menubar">
@@ -635,11 +674,26 @@ window.addEventListener('load', () => {
 ================================================================ */
 function updateClock() {
   const now  = new Date();
-  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const mons = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  
+  // Data for formatting
+  const days     = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const fullDays = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const mons     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const fullMons = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  
   const h    = now.getHours(), m = now.getMinutes().toString().padStart(2,'0');
+  const h12  = h % 12 || 12;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+
+  // 1. Menu bar small clock
   document.getElementById('clock').textContent =
-    `${days[now.getDay()]} ${mons[now.getMonth()]} ${now.getDate()}  ${h%12||12}:${m} ${h>=12?'PM':'AM'}`;
+    `${days[now.getDay()]} ${mons[now.getMonth()]} ${now.getDate()}  ${h12}:${m} ${ampm}`;
+
+  // 2. Large desktop background clock
+  const desktopTime = document.getElementById('desktop-time');
+  const desktopDate = document.getElementById('desktop-date');
+  if (desktopTime) desktopTime.textContent = `${h12}:${m}`;  
+  if (desktopDate) desktopDate.textContent = `${fullDays[now.getDay()]}, ${fullMons[now.getMonth()]} ${now.getDate()}`;
 }
 updateClock();
 setInterval(updateClock, 1000);
