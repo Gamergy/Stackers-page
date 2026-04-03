@@ -288,6 +288,11 @@
 
     /* ── MOBILE ──────────────────── */
     @media (max-width: 768px) {
+      /* Move clock above the raised dock */
+      #desktop-clock {
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 220px);
+        right: 24px;
+      }
       /* Lift dock above home indicator / nav bar */
       #dock-container {
         bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
