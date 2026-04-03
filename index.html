@@ -946,13 +946,48 @@ document.querySelectorAll('.window-titlebar').forEach(bar => {
   bar.ondragstart = () => false;
 });
 
-/* Contact form */
-function handleFormSubmit(e) {
+/* Contact form — sends to Telegram Bot API */
+async function handleFormSubmit(e) {
   e.preventDefault();
-  const toast = document.getElementById('toast');
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3500);
-  e.target.reset();
+  const name    = document.getElementById('cf-name').value.trim();
+  const email   = document.getElementById('cf-email').value.trim();
+  const message = document.getElementById('cf-message').value.trim();
+  const btn     = e.target.querySelector('.btn-send');
+
+  const text = `📬 New message from portfolio!\n👤 Name: ${name}\n📧 Email: ${email}\n💬 Message: ${message}`;
+
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(
+      'https://api.telegram.org/bot8286629629:AAHLgcKr0H01OzJ5AjCN1HD2Mch-yiXODQg/sendMessage',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: '6779291368', text })
+      }
+    );
+    if (!res.ok) throw new Error('API error');
+
+    // Replace the form with a clean in-window success message
+    document.getElementById('contact-form').innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:32px 0;text-align:center;">
+        <div style="font-size:42px;">✅</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text-primary);">Message sent!</div>
+        <div style="font-size:13px;color:var(--text-secondary);">Thanks ${name}, I'll get back to you soon.</div>
+      </div>`;
+  } catch {
+    btn.textContent = 'Send Message 🚀';
+    btn.disabled = false;
+    const toast = document.getElementById('toast');
+    toast.textContent = '❌ Failed to send — please try again.';
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+      toast.textContent = '✅ Message sent! I\'ll get back to you soon.';
+    }, 3500);
+  }
 }
 
 /* ── MENUBAR CUSTOM U-CURVE SHAPE ─────────────────── */
