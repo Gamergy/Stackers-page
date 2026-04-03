@@ -314,10 +314,14 @@
     .project-card.expanding {
       position: absolute;
       z-index: 50;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+      background: #1c1c1f; /* solid — matches dark glass, no transparency */
+      border-color: rgba(255,255,255,0.14);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+      transform-origin: top left;
       transition: top 0.38s cubic-bezier(0.34, 1.18, 0.64, 1),
                   left 0.38s cubic-bezier(0.34, 1.18, 0.64, 1),
                   width 0.38s cubic-bezier(0.34, 1.18, 0.64, 1),
+                  transform 0.44s cubic-bezier(0.22, 1, 0.36, 1),
                   box-shadow 0.28s;
     }
     .card-expanded-body { max-height: 0; overflow: hidden; transition: max-height 0.36s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s; opacity: 0; }
@@ -1226,17 +1230,34 @@ function toggleProjectCard(id) {
     _cardState[id] = { open: true, ghost, origTop: top, origLeft: left, origWidth: cardRect.width };
 
   } else {
-    /* ── COLLAPSE ── */
+    /* ── COLLAPSE — scale both axes simultaneously ── */
     const { ghost, origTop, origLeft, origWidth } = state;
-    card.style.top   = origTop  + 'px';
-    card.style.left  = origLeft + 'px';
-    card.style.width = origWidth + 'px';
+    const expandedRect = card.getBoundingClientRect();
+    const gridRect2    = card.closest('.projects-grid').getBoundingClientRect();
+    const scaleX = origWidth / (gridRect2.width || 1);
+    const scaleY = (expandedRect.height > 0)
+      ? Math.min(scaleX, scaleX) // proportional — use scaleX for both so it shrinks uniformly
+      : scaleX;
+
+    /* Snap to original top/left instantly (no transition on position), then scale down */
+    card.style.transition = 'none';
+    card.style.top  = origTop  + 'px';
+    card.style.left = origLeft + 'px';
+    card.style.width = (gridRect2.width) + 'px'; // keep full width, scale handles size
+    card.style.transformOrigin = 'top left';
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      card.style.transition = ''; // restore CSS transition
+      card.style.transform  = `scale(${scaleX})`;
+      card.style.opacity    = '0.0';
+    }));
 
     card.addEventListener('transitionend', function cleanup(e) {
-      if (e.propertyName !== 'width') return;
+      if (e.propertyName !== 'transform') return;
       card.removeEventListener('transitionend', cleanup);
       card.classList.remove('expanding');
       card.style.top = card.style.left = card.style.width = '';
+      card.style.transform = card.style.opacity = card.style.transformOrigin = '';
       ghost.remove();
     });
 
