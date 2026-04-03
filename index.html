@@ -303,6 +303,15 @@
     .desktop-icon:active { transform: scale(0.97); }
     .desktop-icon svg { display: block; width: 100%; height: 100%; pointer-events: none; }
 
+    /* ── PROJECT CARD EXPAND ────────*/
+    .project-card-icon-img { width: 44px; height: 44px; border-radius: 11px; overflow: hidden; background: #deddde; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); flex-shrink: 0; }
+    .project-card-icon-img svg { display: block; width: 100%; height: 100%; }
+    .project-card.expanded { grid-column: 1 / -1; }
+    .card-expanded-body { max-height: 0; overflow: hidden; transition: max-height 0.36s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s; opacity: 0; }
+    .project-card.expanded .card-expanded-body { max-height: 600px; opacity: 1; }
+    .card-bio-header { display: flex; justify-content: flex-end; margin: 14px 0 8px; }
+    .card-bio-text { font-size: 12px; line-height: 1.75; color: var(--text-secondary); transition: opacity 0.2s; }
+
     /* ── SAMEROUTE WINDOW ────────── */
     .sameroute-logo { width: 76px; height: 76px; border-radius: 18px; overflow: hidden; background: #deddde; box-shadow: 0 6px 20px rgba(0,0,0,0.38), 0 1px 5px rgba(0,0,0,0.2); margin: 0 auto 18px; display: block; pointer-events: none; }
     .sameroute-logo svg { display: block; width: 100%; height: 100%; }
@@ -509,11 +518,21 @@
     </div>
     <div class="window-body">
       <div class="projects-grid">
-        <div class="project-card">
-          <div class="project-card-icon">🚀</div>
-          <h3>Project Alpha</h3>
-          <p>A placeholder for an upcoming project. Details coming soon.</p>
-          <span class="project-tag">Web Dev</span>
+        <div class="project-card" id="card-sameroute" onclick="toggleProjectCard('sameroute')">
+          <div class="project-card-icon-img">
+            <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <image href="./SameRoute_logo.png" x="0" y="0" width="44" height="44" preserveAspectRatio="xMidYMid meet"/>
+            </svg>
+          </div>
+          <h3>SameRoute</h3>
+          <p>Smart mobility platform for schools and municipalities</p>
+          <span class="project-tag">Startup</span>
+          <div class="card-expanded-body" id="card-sameroute-body">
+            <div class="card-bio-header">
+              <button class="lang-toggle" id="sr-card-toggle" onclick="event.stopPropagation(); toggleSRCardLang()">EN / LV</button>
+            </div>
+            <div class="card-bio-text" id="sr-card-text">Sameroute is a smart mobility platform designed for schools and municipalities to make student transportation safer, more efficient, and less stressful for families. The app connects parents who can act as drivers with other families in their area, allowing them to share rides to and from school. By organizing trips in advance or joining nearby active routes in real time, Sameroute reduces traffic congestion, saves time, and optimizes transport resources. With a strong focus on safety, transparency, and community trust, Sameroute enables guardians to manage their children's rides, track journeys, and ensure reliable daily transportation — all in one place.</div>
+          </div>
         </div>
         <div class="project-card">
           <div class="project-card-icon">🎮</div>
@@ -664,7 +683,11 @@
         </svg>
       </div>
       <div class="sameroute-heading">SameRoute — Startup</div>
-      <div class="sameroute-desc">SameRoute is a tech startup focused on building innovative solutions. More details coming soon.</div>
+      <div class="bio-header" style="max-width:520px;margin:0 auto 10px;">
+        <div class="about-section-title">About</div>
+        <button class="lang-toggle" id="sr-win-toggle" onclick="toggleSRWindowLang()">EN / LV</button>
+      </div>
+      <div class="about-bio" id="sr-win-text" style="max-width:520px;margin:0 auto 24px;text-align:left;">Sameroute is a smart mobility platform designed for schools and municipalities to make student transportation safer, more efficient, and less stressful for families. The app connects parents who can act as drivers with other families in their area, allowing them to share rides to and from school. By organizing trips in advance or joining nearby active routes in real time, Sameroute reduces traffic congestion, saves time, and optimizes transport resources. With a strong focus on safety, transparency, and community trust, Sameroute enables guardians to manage their children's rides, track journeys, and ensure reliable daily transportation — all in one place.</div>
       <div class="sameroute-screenshots">
         <div class="screenshot-slot">Screenshot 1</div>
         <div class="screenshot-slot">Screenshot 2</div>
@@ -1048,6 +1071,37 @@ async function handleFormSubmit(e) {
       toast.textContent = '✅ Message sent! I\'ll get back to you soon.';
     }, 3500);
   }
+}
+
+/* ── SAMEROUTE LANGUAGE CONTENT ──────────────────── */
+const srText = {
+  en: 'Sameroute is a smart mobility platform designed for schools and municipalities to make student transportation safer, more efficient, and less stressful for families. The app connects parents who can act as drivers with other families in their area, allowing them to share rides to and from school. By organizing trips in advance or joining nearby active routes in real time, Sameroute reduces traffic congestion, saves time, and optimizes transport resources. With a strong focus on safety, transparency, and community trust, Sameroute enables guardians to manage their children\'s rides, track journeys, and ensure reliable daily transportation — all in one place.',
+  lv: 'Sameroute ir mobilitātes platforma, kas paredzēta skolām un pašvaldībām, lai padarītu skolēnu pārvadāšanu drošāku, efektīvāku un ērtāku ģimenēm. Lietotne savieno vecākus, kuri var darboties kā šoferi, ar citām ģimenēm tuvākajā apkārtnē, ļaujot kopīgi organizēt braucienus uz skolu un no tās. Plānojot braucienus iepriekš vai pievienojoties tuvumā notiekošiem maršrutiem reāllaikā, Sameroute samazina satiksmes noslodzi, ietaupa laiku un optimizē transporta izmantošanu. Ar uzsvaru uz drošību, caurspīdīgumu un savstarpēju uzticēšanos, Sameroute ļauj vecākiem pārvaldīt bērnu braucienus, sekot līdzi maršrutiem un nodrošināt uzticamu ikdienas transportu — vienuviet.'
+};
+
+/* Window toggle */
+let srWinLang = 'en';
+function toggleSRWindowLang() {
+  srWinLang = srWinLang === 'en' ? 'lv' : 'en';
+  const el = document.getElementById('sr-win-text');
+  el.style.opacity = '0';
+  setTimeout(() => { el.textContent = srText[srWinLang]; el.style.opacity = '1'; }, 200);
+  document.getElementById('sr-win-toggle').textContent = srWinLang === 'en' ? 'EN / LV' : 'LV / EN';
+}
+
+/* Card toggle */
+let srCardLang = 'en';
+function toggleSRCardLang() {
+  srCardLang = srCardLang === 'en' ? 'lv' : 'en';
+  const el = document.getElementById('sr-card-text');
+  el.style.opacity = '0';
+  setTimeout(() => { el.textContent = srText[srCardLang]; el.style.opacity = '1'; }, 200);
+  document.getElementById('sr-card-toggle').textContent = srCardLang === 'en' ? 'EN / LV' : 'LV / EN';
+}
+
+/* Project card expand/collapse */
+function toggleProjectCard(id) {
+  document.getElementById(`card-${id}`).classList.toggle('expanded');
 }
 
 /* ── BIO LANGUAGE TOGGLE ─────────────────────────── */
