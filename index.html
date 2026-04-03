@@ -777,6 +777,60 @@ document.querySelectorAll('.mac-window').forEach(win => {
   });
 });
 
+/* Draggable Windows */
+document.querySelectorAll('.window-titlebar').forEach(bar => {
+  bar.addEventListener('mousedown', e => {
+    // Ignore clicks on titlebar control buttons
+    if (e.target.closest('.titlebar-buttons')) return;
+
+    const win = bar.closest('.mac-window');
+    const rect = win.getBoundingClientRect();
+    const deskRect = document.getElementById('desktop').getBoundingClientRect();
+
+    // The css uses translate(-50%, -50%). Setting left and top strictly to its current
+    // physical center preserves its position seamlessly and prevents any snapping jump.
+    const centerX = rect.left - deskRect.left + rect.width / 2;
+    const centerY = rect.top - deskRect.top + rect.height / 2;
+    win.style.left = centerX + 'px';
+    win.style.top = centerY + 'px';
+
+    const shiftX = e.clientX - deskRect.left - centerX;
+    const shiftY = e.clientY - deskRect.top - centerY;
+    
+    // Safety padding for the bottom dock
+    const dockPadding = 110; 
+    const halfW = rect.width / 2;
+    const halfH = rect.height / 2;
+
+    function onMouseMove(event) {
+      let newX = event.clientX - deskRect.left - shiftX;
+      let newY = event.clientY - deskRect.top - shiftY;
+
+      // Restrict completely within screen bounds
+      if (newX - halfW < 0) newX = halfW;
+      if (newX + halfW > deskRect.width) newX = deskRect.width - halfW;
+      // Dont go behind the menu bar at the top (28px height)
+      if (newY - halfH < 28) newY = halfH + 28;
+      // Dont go behind the dock at the bottom
+      if (newY + halfH > deskRect.height - dockPadding) newY = deskRect.height - dockPadding - halfH;
+
+      win.style.left = newX + 'px';
+      win.style.top = newY + 'px';
+    }
+
+    function onMouseUp() {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    }
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+  
+  // Disable native HTML5 drag-and-drop on the titlebar
+  bar.ondragstart = () => false;
+});
+
 /* Contact form */
 function handleFormSubmit(e) {
   e.preventDefault();
