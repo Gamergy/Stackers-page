@@ -1230,30 +1230,29 @@ function toggleProjectCard(id) {
     _cardState[id] = { open: true, ghost, origTop: top, origLeft: left, origWidth: cardRect.width };
 
   } else {
-    /* ── COLLAPSE — scale both axes simultaneously ── */
+    /* ── COLLAPSE — card stays fully opaque, scales back to origin ── */
     const { ghost, origTop, origLeft, origWidth } = state;
-    const expandedRect = card.getBoundingClientRect();
-    const gridRect2    = card.closest('.projects-grid').getBoundingClientRect();
-    const scaleX = origWidth / (gridRect2.width || 1);
-    const scaleY = (expandedRect.height > 0)
-      ? Math.min(scaleX, scaleX) // proportional — use scaleX for both so it shrinks uniformly
-      : scaleX;
+    const gridRect2 = card.closest('.projects-grid').getBoundingClientRect();
+    const scaleX    = origWidth / (gridRect2.width || 1);
 
-    /* Instantly hide expanded body so no ghost content shows during scale */
+    /* Gently fade only the expanded body content, not the card itself */
     const expandedBody = card.querySelector('.card-expanded-body');
-    if (expandedBody) { expandedBody.style.transition = 'none'; expandedBody.style.maxHeight = '0'; expandedBody.style.opacity = '0'; }
+    if (expandedBody) {
+      expandedBody.style.transition = 'opacity 0.12s ease';
+      expandedBody.style.opacity = '0';
+    }
 
-    /* Snap position instantly, then scale down */
+    /* Snap position back instantly with no transition */
     card.style.transition = 'none';
-    card.style.top  = origTop  + 'px';
-    card.style.left = origLeft + 'px';
-    card.style.width = (gridRect2.width) + 'px';
+    card.style.top    = origTop  + 'px';
+    card.style.left   = origLeft + 'px';
+    card.style.width  = gridRect2.width + 'px';
     card.style.transformOrigin = 'top left';
 
+    /* Next frame: animate scale down — card stays fully opaque throughout */
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      card.style.transition = ''; // restore CSS transition
+      card.style.transition = ''; // restore .expanding CSS transitions
       card.style.transform  = `scale(${scaleX})`;
-      card.style.opacity    = '0.0';
     }));
 
     card.addEventListener('transitionend', function cleanup(e) {
@@ -1261,7 +1260,7 @@ function toggleProjectCard(id) {
       card.removeEventListener('transitionend', cleanup);
       card.classList.remove('expanding');
       card.style.top = card.style.left = card.style.width = '';
-      card.style.transform = card.style.opacity = card.style.transformOrigin = '';
+      card.style.transform = card.style.transformOrigin = '';
       if (expandedBody) { expandedBody.style.transition = expandedBody.style.maxHeight = expandedBody.style.opacity = ''; }
       ghost.remove();
     });
