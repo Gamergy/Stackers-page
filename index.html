@@ -91,9 +91,13 @@
       font-weight: 600;
       font-size: min(180px, 15vw); /* Massive but safely contained */
       line-height: 0.8;
-      color: rgba(255, 255, 255, 0.65); /* Frosted semi-transparent look */
+      
+      /* Apple iOS "Rails" hollow outline effect */
+      color: transparent;
+      -webkit-text-stroke: 4px rgba(255, 255, 255, 0.85);
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+      
       letter-spacing: -0.01em;
-      text-shadow: 0 4px 50px rgba(0,0,0,0.3);
       transform-origin: bottom right;
     }
     
