@@ -710,6 +710,9 @@
       const p  = particles[i];
       const el = elems[i];
 
+      /* ── freeze in place when no active input ── */
+      if (!hasMouse) continue;
+
       /* ── gather influence from all active pointers ── */
       let minDist = Infinity, closestDx = 0, closestDy = 0, fx = 0, fy = 0;
       for (const pt of pointers) {
@@ -724,25 +727,21 @@
         }
       }
       const dist = minDist;
-      const dx   = closestDx;  // used below for elongation angle
+      const dx   = closestDx;
       const dy   = closestDy;
 
-      /* ── opacity: 0 when no pointer or beyond MAX_R ── */
+      /* ── opacity: ramp from 0 at MAX_R edge to 1 near pointer ── */
       let opacity = 0;
-      if (hasMouse && dist < MAX_R) {
-        /* ramp: 0 at MAX_R edge → 1 inside FADE_INNER */
+      if (dist < MAX_R) {
         opacity = dist <= FADE_INNER
           ? 1
           : 1 - (dist - FADE_INNER) / (MAX_R - FADE_INNER);
         opacity = Math.max(0, Math.min(1, opacity));
       }
 
-      /* ── physics: apply combined repel forces ── */
-      if (hasMouse && pointers.length > 0) {
-        p.vx += fx;
-        p.vy += fy;
-      }
-      /* spring back to home */
+      /* ── physics ── */
+      p.vx += fx;
+      p.vy += fy;
       p.vx += (p.ox - p.x) * SPRING;
       p.vy += (p.oy - p.y) * SPRING;
       p.vx *= DAMP;
@@ -750,15 +749,9 @@
       p.x  += p.vx;
       p.y  += p.vy;
 
-      /* ── skip DOM update for fully-invisible settled particles ── */
-      const settled = Math.abs(p.vx) < 0.01 && Math.abs(p.vy) < 0.01;
-      if (!hasMouse && settled && !p.visible) continue;
-
-      p.visible = opacity > 0;
-
       /* ── shape morphing ── */
-      /* ratio: 0 = at cursor, 1 = at MAX_R edge */
-      const ratio = Math.min(1, dist / MAX_R);
+      /* ratio: 0 = at cursor, 1 = at MAX_R edge (guard against Infinity) */
+      const ratio = isFinite(dist) ? Math.min(1, dist / MAX_R) : 0;
       const rx    = p.baseR * (1 + (MAX_ELONG - 1) * ratio * ratio); // ease-in curve
       const ry    = p.baseR;
 
