@@ -389,17 +389,70 @@
 
     /* ── MOBILE ──────────────────── */
     @media (max-width: 768px) {
-      /* Move clock above the raised dock */
-      #desktop-clock {
-        bottom: calc(env(safe-area-inset-bottom, 0px) + 220px);
-        right: 24px;
+      /* ── Menubar ── */
+      /* Hide File / View / Help — keep only Stacker */
+      .menu-nav-item { display: none; }
+      /* Hide the small inline clock — using big desktop-clock instead */
+      #menubar-right { display: none; }
+      /* Hide username label */
+      #username-label { display: none; }
+      /* Solid opaque menubar — no bleed-through */
+      #menubar-bg {
+        background: #141414 !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
       }
-      /* Lift dock above home indicator / nav bar */
+      /* Smaller badge text so it fits without dominating */
+      #menubar-center-text {
+        font-size: 20px !important;
+      }
+
+      /* ── Clock — top-right, below badge ── */
+      #desktop-clock {
+        position: absolute !important;
+        top: 96px !important;
+        right: 16px !important;
+        bottom: auto !important;
+        text-align: right !important;
+      }
+      #desktop-time {
+        font-size: 34px !important;
+        line-height: 1 !important;
+        color: rgba(255,255,255,0.88) !important;
+      }
+      #desktop-date {
+        font-size: 11px !important;
+        font-weight: 300 !important;
+        margin-top: 5px !important;
+        color: rgba(255,255,255,0.44) !important;
+        letter-spacing: 0.06em !important;
+      }
+
+      /* ── Desktop icons — L-shape below clock, top-right ── */
+      /*   [SameRoute]
+           [StackersProg][Channy]                              */
+      #icon-sameroute {
+        top: 162px !important;
+        right: 80px !important;
+        left: auto !important;
+      }
+      #icon-stackersprog {
+        top: 226px !important;
+        right: 80px !important;
+        left: auto !important;
+      }
+      #icon-channy {
+        top: 226px !important;
+        right: 16px !important;
+        left: auto !important;
+      }
+
+      /* ── Lift dock above home indicator / nav bar ── */
       #dock-container {
         bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
       }
 
-      /* Windows: fill safe area between menubar badge and dock */
+      /* ── Windows: fill safe area between badge and dock ── */
       .mac-window {
         position: fixed !important;
         top: 94px !important;
@@ -464,9 +517,9 @@
     <div id="menubar-left">
       <span class="menu-apple">&#63743;</span>
       <span class="menu-item">Stacker</span>
-      <span class="menu-item">File</span>
-      <span class="menu-item">View</span>
-      <span class="menu-item">Help</span>
+      <span class="menu-item menu-nav-item">File</span>
+      <span class="menu-item menu-nav-item">View</span>
+      <span class="menu-item menu-nav-item">Help</span>
     </div>
     <div id="menubar-center">
       <span id="menubar-center-text">Gabriels Portfolio</span>
@@ -482,21 +535,21 @@
   <div id="username-label">Stacker</div>
 
   <!-- Desktop Icon: SameRoute -->
-  <div class="desktop-icon" style="top:110px;left:36px;" onclick="openWindow('sameroute')">
+  <div id="icon-sameroute" class="desktop-icon" style="top:110px;left:36px;" onclick="openWindow('sameroute')">
     <svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg" aria-label="SameRoute">
       <image href="./SameRoute_logo.png" x="0" y="0" width="54" height="54" preserveAspectRatio="xMidYMid meet"/>
     </svg>
   </div>
 
   <!-- Desktop Icon: Channy -->
-  <div class="desktop-icon" style="top:254px;left:36px;background:#2b2b2c;" onclick="openWindow('channy')">
+  <div id="icon-channy" class="desktop-icon" style="top:254px;left:36px;background:#2b2b2c;" onclick="openWindow('channy')">
     <svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg" aria-label="Channy">
       <image href="./Channy_logo.png" x="4" y="4" width="46" height="46" preserveAspectRatio="xMidYMid meet"/>
     </svg>
   </div>
 
   <!-- Desktop Icon: StackersProg -->
-  <div class="desktop-icon" style="top:182px;left:36px;background:#ffffff;" onclick="openWindow('stackersprog')">
+  <div id="icon-stackersprog" class="desktop-icon" style="top:182px;left:36px;background:#ffffff;" onclick="openWindow('stackersprog')">
     <svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg" aria-label="StackersProg">
       <image href="./StackersProg_logo.png" x="6" y="6" width="42" height="42" preserveAspectRatio="xMidYMid meet"/>
     </svg>
