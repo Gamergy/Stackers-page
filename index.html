@@ -396,27 +396,37 @@
       #menubar-right { display: none; }
       /* Hide username label */
       #username-label { display: none; }
-      /* Solid opaque menubar — no bleed-through */
+      /* Solid opaque menubar bar + badge — no bleed-through */
       #menubar-bg {
         background: #141414 !important;
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
+        height: 56px !important;   /* matches mobile dropH in JS */
+      }
+      #menubar {
+        background: #141414 !important;
+      }
+      /* Badge container height synced to JS dropH */
+      #menubar-center {
+        height: 56px !important;
       }
       /* Smaller badge text so it fits without dominating */
       #menubar-center-text {
         font-size: 20px !important;
       }
 
-      /* ── Clock — top-right, below badge ── */
+      /* ── Clock — top-right, below badge, 250% bigger ── */
+      /*  badge bottom ≈ 56px, clock starts 10px below → top: 66px   */
       #desktop-clock {
         position: absolute !important;
-        top: 96px !important;
+        top: 66px !important;
         right: 16px !important;
         bottom: auto !important;
         text-align: right !important;
       }
+      /* 250% of the previous 34px = 85px */
       #desktop-time {
-        font-size: 34px !important;
+        font-size: 85px !important;
         line-height: 1 !important;
         color: rgba(255,255,255,0.88) !important;
       }
@@ -428,23 +438,26 @@
         letter-spacing: 0.06em !important;
       }
 
-      /* ── Desktop icons — L-shape below clock, top-right ── */
-      /*   [SameRoute]
-           [StackersProg][Channy]                              */
+      /* ── Desktop icons — L-shape, top-LEFT, below clock ──
+         clock bottom ≈ 66 + 85 + 18 = 169px → icons start ~182px
+         Layout:
+           [SR][CH]   ← top row
+           [SP]       ← below SR
+      ── */
       #icon-sameroute {
-        top: 162px !important;
-        right: 80px !important;
-        left: auto !important;
-      }
-      #icon-stackersprog {
-        top: 226px !important;
-        right: 80px !important;
-        left: auto !important;
+        top: 182px !important;
+        left: 16px !important;
+        right: auto !important;
       }
       #icon-channy {
-        top: 226px !important;
-        right: 16px !important;
-        left: auto !important;
+        top: 182px !important;
+        left: 80px !important;   /* 16 + 54 + 10 */
+        right: auto !important;
+      }
+      #icon-stackersprog {
+        top: 246px !important;   /* 182 + 54 + 10 */
+        left: 16px !important;
+        right: auto !important;
       }
 
       /* ── Lift dock above home indicator / nav bar ── */
@@ -1444,7 +1457,12 @@ function toggleBioLang() {
     // hw: half-width of the flat droop section
     // outerR: radius of the smooth transition corner (bar → droop wall)
     // br: radius of the rounded bottom corners
-    const barH = 28, dropH = 86, hw = 185, outerR = 64, br = 26;
+    const isMob = W <= 768;
+    const barH = 28;
+    const dropH  = isMob ? 56  : 86;
+    const hw     = isMob ? 100 : 185;
+    const outerR = isMob ? 38  : 64;
+    const br     = isMob ? 18  : 26;
     const c = W / 2;
     const d = [
       `M0,0`,
